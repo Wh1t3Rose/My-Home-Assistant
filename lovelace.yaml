@@ -1,0 +1,1881 @@
+kiosk_mode:
+  mobile_settings:
+    hide_header: true
+    ignore_entity_settings: true
+    custom_width: 768
+views:
+  - type: sections
+    max_columns: 1
+    title: Home
+    path: '1'
+    icon: mdi:home
+    sections:
+      - type: grid
+        cards:
+          - content:
+              - light
+              - media_player
+              - vacuum
+              - fan
+              - Binary Sensor - vibration
+              - Binary Sensor - moisture
+              - Binary Sensor - opening
+              - input_boolean
+            type: custom:status-card
+            columns: 4
+            hide_person: false
+            list_mode: false
+            hide_content_name: false
+            customization: []
+            hide_filter: Entity
+          - type: custom:stack-in-card
+            mode: horizontal
+            style: |
+              ha-card {
+                gap: 0px;
+                padding: 0;
+              }
+            cards:
+              - type: tile
+                features_position: bottom
+                entity: sensor.hannah_iphone_battery_level
+                name: iPhone
+              - type: tile
+                features_position: bottom
+                entity: sensor.pixel_8_battery_level
+                name: Pixel
+              - type: tile
+                features_position: bottom
+                entity: sensor.google_pixel_watch_battery_level
+                name: PWatch
+          - type: custom:button-card
+            layout: horizontal
+            show_name: false
+            show_state: false
+            show_icon: false
+            styles:
+              card:
+                - padding: 0
+                - box-shadow: none
+                - border-radius: 0
+              grid:
+                - grid-template-columns: >-
+                    repeat(3, 1fr) /* Adjust number of columns based on entities
+                    */
+                - gap: 0px
+            entities:
+              - type: custom:button-card
+                entity: sensor.ups_power_usage_energy_daily
+                name: Daily Energy Usage
+                icon: mdi:lightning-bolt
+                show_icon: true
+                show_name: true
+                show_state: true
+                styles:
+                  card:
+                    - padding: 10px
+                    - display: flex
+                    - flex-direction: row
+                    - align-items: center
+                  icon:
+                    - color: var(--primary-color)
+                    - margin-right: 10px
+                  name:
+                    - font-size: 14px
+                    - text-align: left
+                  state:
+                    - font-size: 14px
+                    - text-align: left
+              - type: custom:button-card
+                entity: sensor.ups_power_usage_energy_weekly
+                name: Weekly Energy Usage
+                icon: mdi:calendar-week
+                show_icon: true
+                show_name: true
+                show_state: true
+                styles:
+                  card:
+                    - padding: 10px
+                    - display: flex
+                    - flex-direction: row
+                    - align-items: center
+                  icon:
+                    - color: var(--primary-color)
+                    - margin-right: 10px
+                  name:
+                    - font-size: 14px
+                    - text-align: left
+                  state:
+                    - font-size: 14px
+                    - text-align: left
+              - type: custom:button-card
+                entity: sensor.ups_energy_cost
+                name: Energy Cost
+                icon: mdi:currency-usd
+                show_icon: true
+                show_name: true
+                show_state: true
+                styles:
+                  card:
+                    - padding: 10px
+                    - display: flex
+                    - flex-direction: row
+                    - align-items: center
+                  icon:
+                    - color: var(--primary-color)
+                    - margin-right: 10px
+                  name:
+                    - font-size: 14px
+                    - text-align: left
+                  state:
+                    - font-size: 14px
+                    - text-align: left
+          - type: horizontal-stack
+            cards:
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes: []
+                toggle_domains:
+                  - light
+                  - media_player
+                  - switch
+                popup_domains:
+                  - switch
+                  - light
+                  - media_player
+                type: custom:area-card-plus
+                area: baby_room
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                extra_entities:
+                  - light.kenzie_room_lights
+                  - switch.lumi_kenzie_smartplug
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - switch.kenzie_motion_sensor_led_trigger_indicator_2
+                  - light.kenzie_light_1_light_6
+                  - light.kenzie_light_2_light_7
+                domain_color: deep-orange
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAHB3k991Grw80hCoIiUMfSsPcq2To7oVwqw&s');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                      height: 300px;
+                    }
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                toggle_domains:
+                  - light
+                  - switch
+                  - fan
+                  - media_player
+                popup_domains:
+                  - fan
+                  - light
+                  - media_player
+                  - remote
+                  - switch
+                type: custom:area-card-plus
+                area: living_room
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - media_player.living_room_tv_2
+                  - remote.living_room_tv
+                  - media_player.living_room_tv_google_cast
+                  - remote.living_room_tv_adb
+                  - media_player.living_room_tv_adb
+                  - switch.tyler_s_echo_plus_repeat_switch
+                  - switch.tyler_s_echo_plus_shuffle_switch
+                extra_entities: []
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://swyfthome.com/cdn/shop/articles/pexels-max-vakhtbovych-6186821-min.jpg?v=1727880537');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                      height: 300px;
+                    }
+          - type: horizontal-stack
+            cards:
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes: []
+                toggle_domains:
+                  - switch
+                  - light
+                popup_domains:
+                  - switch
+                  - light
+                  - sensor
+                type: custom:area-card-plus
+                area: kitchen
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - switch.kitchen_motion_sensor_led_trigger_indicator
+                  - >-
+                    switch.kitchen_mat_calibration_place_your_mat_turn_on_calibration_put_your_desired_load_on_mat_turn_off_calibration_auto_adjusts_sensitivity_for_you
+                  - switch.espresense_kitchen_arduino_ota
+                  - switch.espresense_kitchen_auto_update
+                  - switch.espresense_kitchen_prerelease
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3LxBx2JUdQIcR_kiRqTgg_8LSBhBQMmFR3-tfcjwRnA&s=10.');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }
+              - alert_classes: []
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                  - light
+                toggle_domains:
+                  - switch
+                  - media_player
+                popup_domains:
+                  - switch
+                  - media_player
+                  - sensor
+                  - light
+                type: custom:area-card-plus
+                area: master_bath
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                extra_entities:
+                  - light.master_bath_lights_group
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf95EcgRb0Q7MdGJFbUKW2VMffirOExtPCIw&spg');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }
+          - type: horizontal-stack
+            cards:
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes: []
+                toggle_domains:
+                  - light
+                  - switch
+                popup_domains:
+                  - light
+                  - switch
+                  - climate
+                  - sensor
+                type: custom:area-card-plus
+                area: master_bedroom
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                extra_entities: []
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://compasshomes.com/wp-content/uploads/2021/06/dreamy-master-bedrooms-featured.jpg');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                      height: 300px;
+                    }
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                toggle_domains:
+                  - light
+                  - switch
+                popup_domains:
+                  - light
+                  - sensor
+                  - climate
+                type: custom:area-card-plus
+                area: hallway
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - light.hall_light_1_light
+                  - light.hall_light_3_light_5
+                  - light.hall_light_4_light
+                  - light.hall_light_5_light
+                  - sensor.cat_feeder_2_last_feeding_size
+                  - sensor.cat_feeder_2_last_feeding_source
+                  - switch.hallway_motion_sensor_led_trigger_indicator_4
+                extra_entities:
+                  - climate.hvac_power
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://thumbs.dreamstime.com/b/modern-entrance-to-house-hallway-wall-painted-white-clean-colours-black-color-front-door-home-designs-entry-interior-318082348.jpg');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }
+            grid_options:
+              rows: 3
+          - type: custom:bubble-card
+            card_type: pop-up
+            hash: '#weather'
+            name: Weather
+            icon: mdi:weather-partly-cloudy
+            cards:
+              - type: custom:markdown-card
+                content: >
+                  **Weather Summary**
+
+                  {% if state_attr('weather.pirateweather', 'temperature') |
+                  default(0) < 10 %} 🥶 It's cold outside! Dress warmly. {% elif
+                  state_attr('weather.pirateweather', 'temperature') |
+                  default(0) > 30 %} 🔥 It's hot today! Stay hydrated. {% else
+                  %} 🌤️ It's a pleasant day. Enjoy! {% endif %}
+
+                  🌡️ **Temperature:** {{ state_attr('weather.pirateweather',
+                  'temperature') | default('N/A') }}°C   🌥️ **Condition:** {{
+                  states('weather.pirateweather') | default('N/A') }}   💧
+                  **Humidity:** {{ state_attr('weather.pirateweather',
+                  'humidity') | default('N/A') }}%   🌬️ **Wind Speed:** {{
+                  state_attr('weather.pirateweather', 'wind_speed') |
+                  default('N/A') }} km/h  
+
+                  {% set forecast = state_attr('weather.pirateweather',
+                  'forecast') %} {% if forecast and forecast[0] %} ☔ **Rain
+                  Chance:** {{ forecast[0].precipitation_probability |
+                  default('0') }}%   {% else %} ☔ **Rain Chance:** N/A   {%
+                  endif %}
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#weather'
+                name: Weather
+                icon: mdi:fridge
+                entity: light.kitchen
+              - type: markdown
+                content: |2-
+                    **Weather Summary**
+
+                    {% if state_attr('weather.pirateweather', 'temperature') | default(0) < 10 %}
+                    🥶 It's cold outside! Dress warmly.
+                    {% elif state_attr('weather.pirateweather', 'temperature') | default(0) > 30 %}
+                    🔥 It's hot today! Stay hydrated.
+                    {% else %}
+                    🌤️ It's a pleasant day. Enjoy!
+                    {% endif %}
+
+
+                    🌡️ **Temperature:** {{ state_attr('weather.pirateweather', 'temperature') | default('N/A') }}°C  
+                    🌥️ **Condition:** {{ states('weather.pirateweather') | default('N/A') }}  
+                    💧 **Humidity:** {{ state_attr('weather.pirateweather', 'humidity') | default('N/A') }}%  
+                    🌬️ **Wind Speed:** {{ state_attr('weather.pirateweather', 'wind_speed') | default('N/A') }} km/h  
+
+                    {% set forecast = state_attr('weather.pirateweather', 'forecast') %}
+                    {% if forecast and forecast[0] %}
+                    ☔ **Rain Chance:** {{ forecast[0].precipitation_probability | default('0') }}%  
+                    {% else %}
+                    ☔ **Rain Chance:** N/A  
+                    {% endif %}
+              - type: custom:mini-graph-card
+                color_thresholds:
+                  - color: '#468FAF'
+                    value: 14
+                  - color: '#73B3D3'
+                    value: 32
+                  - color: '#8AC926'
+                    value: 60
+                  - color: '#FFCA3A'
+                    value: 75
+                  - color: '#FF595E'
+                    value: 90
+                color_thresholds_transition: smooth
+                name: Temperature
+                entities:
+                  - entity: sensor.pirateweather_temperature
+                    name: Temperature
+                  - color: rgba(128,128,128,0.3)
+                    entity: sensor.pirateweather_temperature
+                    show_line: false
+                    show_points: false
+                    y_axis: secondary
+                    show_legend: false
+                font_size: 65
+                line_width: 4
+                animate: true
+                points_per_hour: 2
+                decimals: 0
+                smoothing: true
+                show:
+                  extrema: false
+                  fill: fade
+                  state: true
+                  average: false
+                  labels_secondary: false
+                  legend: false
+                  name_adaptive_color: true
+                  icon_adaptive_color: true
+                card_mod:
+                  style: |
+                    .name {
+                      font-size: 95%;
+                    }
+                    .header {
+                      padding-bottom: 0px;
+                    }
+                    .states {
+                      padding-bottom: 5px;
+                    }
+                    ha-card {
+                      padding-top: 5px !important;
+                    }
+                    .states.flex {
+                      font-weight: bold;
+                      font-size: 10px;
+                    }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Feels Like Temp
+                    entities:
+                      - entity: sensor.pirateweather_apparent_temperature
+                        name: Dew Point
+                        name_adaptive_color: true
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    font_size: 40
+                    aggregate_func: max
+                    animate: true
+                    smoothing: false
+                    show:
+                      labels: false
+                      legend: false
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                    color_thresholds:
+                      - value: 0
+                        color: '#b3e5fc'
+                      - value: 1
+                        color: '#81d4fa'
+                      - value: 2
+                        color: '#4caf50'
+                      - value: 3
+                        color: '#cddc39'
+                      - value: 4
+                        color: '#ffeb3b'
+                      - value: 5
+                        color: '#ff9800'
+                      - value: 6
+                        color: '#f44336'
+                      - value: 7
+                        color: '#880e4f'
+                    state_map:
+                      - value: dry
+                        label: Dry
+                      - value: very_comfortable
+                        label: Very Comfortable
+                      - value: comfortable
+                        label: Comfortable
+                      - value: ok_but_humid
+                        label: Ok But Humid
+                      - value: somewhat_uncomfortable
+                        label: Somewhat Uncomfortable
+                      - value: quite_uncomfortable
+                        label: Quite Uncomfortable
+                      - value: extremely_uncomfortable
+                        label: Extremely Uncomfortable
+                      - value: severely_high
+                        label: Severely High
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 5px;
+                        }
+                        ha-card {
+                          padding-top: 4px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                          font-size: 10px;
+                        }
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.pirateweather_humidity
+                        name: Humidex
+                        show_state: false
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    font_size: 40
+                    aggregate_func: max
+                    animate: true
+                    smoothing: false
+                    show:
+                      labels: false
+                      legend: false
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                    color_thresholds:
+                      - value: 0
+                        color: '#4caf50'
+                      - value: 1
+                        color: '#cddc39'
+                      - value: 2
+                        color: '#ffeb3b'
+                      - value: 3
+                        color: '#ff9800'
+                      - value: 4
+                        color: '#f44336'
+                      - value: 5
+                        color: '#880e4f'
+                    state_map:
+                      - value: comfortable
+                        label: Comfortable
+                      - value: noticable_discomfort
+                        label: Noticeable Discomfort
+                      - value: evident_discomfort
+                        label: Evident Discomfort
+                      - value: great_discomfort
+                        label: Great Discomfort
+                      - value: dangerous_discomfort
+                        label: Dangerous
+                      - value: heat_stroke
+                        label: Heat Stroke
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 5px;
+                        }
+                        ha-card {
+                          padding-top: 4px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                          font-size: 10px;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Precipitation Intensity
+                    entities:
+                      - entity: sensor.pirateweather_precip_intensity
+                        show_state: true
+                        show_legend: false
+                        state_adaptive_color: false
+                      - color: rgba(128,128,128,0.3)
+                        entity: sensor.pirateweather_precip_intensity
+                        name: Night
+                        show_legend: false
+                        show_line: false
+                        show_points: false
+                        y_axis: secondary
+                    font_size: 65
+                    line_width: 4
+                    animate: true
+                    aggregate_func: max
+                    points_per_hour: 2
+                    show:
+                      extrema: false
+                      fill: fade
+                      state: true
+                      average: false
+                      labels_secondary: false
+                      legend: false
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                    color_thresholds:
+                      - color: '#FFFFFF'
+                        value: 0
+                      - color: '#CAF0F8'
+                        value: 0.25
+                      - color: '#ADE8F4'
+                        value: 0.5
+                      - color: '#90E0EF'
+                        value: 1
+                      - color: '#48CAE4'
+                        value: 4
+                      - color: '#0077B6'
+                        value: 16
+                      - color: '#0077B6'
+                        value: 50
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 5px;
+                        }
+                        ha-card {
+                          padding-top: 5px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                          font-size: 10px;
+                        }
+                    state_map:
+                      - value: no_rain
+                        label: None
+                      - value: very_light
+                        label: Very Light
+                      - value: light
+                        label: Light
+                      - value: moderate
+                        label: Moderate
+                      - value: heavy
+                        label: Heavy
+                      - value: very_heavy
+                        label: Very Heavy
+                      - value: extreme
+                        label: Extreme
+                  - type: custom:mini-graph-card
+                    name: Precipitation Prob
+                    entities:
+                      - entity: sensor.pirateweather_precip_probability
+                        show_state: true
+                        show_legend: false
+                        state_adaptive_color: false
+                      - color: rgba(128,128,128,0.3)
+                        entity: sensor.pirateweather_precip_probability
+                        name: Night
+                        show_legend: false
+                        show_line: false
+                        show_points: false
+                        y_axis: secondary
+                    font_size: 65
+                    line_width: 4
+                    animate: true
+                    points_per_hour: 4
+                    aggregate_func: max
+                    show:
+                      extrema: false
+                      fill: fade
+                      state: true
+                      average: false
+                      labels_secondary: false
+                      legend: false
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                    color_thresholds:
+                      - color: '#CAF0F8'
+                        value: 0.01
+                      - color: '#ADE8F4'
+                        value: 0.1
+                      - color: '#90E0EF'
+                        value: 0.25
+                      - color: '#48CAE4'
+                        value: 0.5
+                      - color: '#0077B6'
+                        value: 1
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 5px;
+                        }
+                        ha-card {
+                          padding-top: 5px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                          font-size: 10px;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Wind
+                    icon: mdi:weather-windy
+                    entities:
+                      - entity: sensor.pirateweather_wind_speed
+                        name: Speed
+                        color: '#e5d0ff'
+                        show_state: true
+                        state_adaptive_color: true
+                      - entity: sensor.pirateweather_wind_gust
+                        name: Gust
+                        show_state: true
+                        color: '#bf8bff'
+                        aggregate_func: max
+                        state_adaptive_color: true
+                      - entity: sensor.pirateweather_wind_gust
+                        color: rgba(128,128,128,0.3)
+                        name: Night
+                        show_legend: false
+                        show_line: false
+                        show_points: false
+                        y_axis: secondary
+                    hours_to_show: 24
+                    points_per_hour: 12
+                    animate: true
+                    font_size: 65
+                    line_width: 2
+                    height: 60
+                    decimals: 1
+                    show:
+                      icon: true
+                      state: true
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                      extrema: false
+                      legend: false
+                      labels_secondary: false
+                      fill: fade
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 0px;
+                        }
+                        ha-card {
+                          padding-top: 5px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                        }
+                grid_options:
+                  columns: 12
+                  rows: auto
+              - type: custom:bubble-card
+                card_type: button
+                event_action:
+                  tap_action:
+                    action: more-info
+                  double_tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                button_type: state
+                entity: sensor.home_air_quality_day_0
+                max_value: 703
+                min_value: 0
+                name: AQI
+                show_attribute: false
+                sub_button:
+                  - entity: sensor.kleenex_pollen_radar_home_trees_level
+                    show_state: true
+                    show_name: false
+                    show_attribute: false
+                    attribute: level
+                    show_icon: true
+                    state_background: false
+                    show_background: false
+                    name: Trees
+                    icon: mdi:tree
+                  - entity: sensor.kleenex_pollen_radar_home_weeds_level
+                    name: Weeds
+                    icon: mdi:grass
+                    show_state: true
+                    state_background: true
+                    show_background: false
+                  - entity: sensor.kleenex_pollen_radar_home_weeds_level
+                    icon: mdi:flower-pollen
+                    show_background: false
+                    show_state: true
+                    show_attribute: false
+                icon: ios:aqi-medium
+                attribute: attribution
+                modules:
+                  - badgy-condition-helper
+                  - bubble_chips
+                progress_border:
+                  entity: sensor.kleenex_pollen_radar_home_grass
+                  attribute: level
+                bubble_chips:
+                  justify-content: flex-start
+                  gap: 45
+                badgy-condition-helper:
+                  entity_badges:
+                    '0':
+                      color: light-grey
+                      text_color: black
+                      entity: sensor.kleenex_pollen_radar_home_trees
+                      show_background: true
+                      show_unit: false
+                      show_if_off: false
+                    '1':
+                      color: light-grey
+                      text_color: black
+                      entity: sensor.kleenex_pollen_radar_home_grass
+                      show_unit: false
+                    '2':
+                      color: light-grey
+                      text_color: black
+                      entity: sensor.kleenex_pollen_radar_home_weeds
+                      show_unit: false
+                styles: |2-
+
+                    .bubble-sub-button-icon {
+                      color: forestgreen !important;
+                    }
+                grid_options:
+                  columns: 12
+                  rows: 1
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: custom:simple-weather-card
+                    entity: weather.pirateweather
+                    name: ' '
+                    primary_info:
+                      - precipitation
+                      - humidity
+                    secondary_info:
+                      - wind_speed
+                      - wind_bearing
+                  - type: custom:hourly-weather
+                    entity: weather.pirateweather
+                    num_segments: '12'
+                    name: ' '
+                    icons: true
+                    show_wind: 'false'
+                    show_date: 'false'
+                    show_precipitation_amounts: false
+                    show_precipitation_probability: false
+                    round_temperatures: true
+                    colors:
+                      clear-night: '#2e3440'
+                      cloudy: '#4c566a'
+                      partlycloudy: '#b2b7bf'
+                      rainy: '#5e81ac'
+                      sunny: '#ebcb8b'
+                    card_mod:
+                      style: |
+                        ha-card {
+                         border: none;
+                        }
+                  - type: custom:clock-weather-card
+                    entity: weather.pirateweather
+                    hide_clock: true
+                    date_pattern: ccc, d.MM.yy
+                    animated_icon: true
+                    hide_today_section: true
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.pirateweather_humidity
+                        name: Humidity
+                        show_state: true
+                        show_legend: false
+                        state_adaptive_color: false
+                      - color: rgba(128,128,128,0.3)
+                        entity: sensor.pirateweather_humidity
+                        name: Night
+                        show_legend: false
+                        show_line: false
+                        show_points: false
+                        y_axis: secondary
+                    font_size: 65
+                    line_width: 4
+                    animate: true
+                    points_per_hour: 2
+                    decimals: 0
+                    smoothing: true
+                    color_thresholds_transition: smooth
+                    show:
+                      extrema: false
+                      fill: fade
+                      state: true
+                      average: false
+                      labels_secondary: false
+                      legend: false
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                    color_thresholds:
+                      - color: '#468FAF'
+                        value: 20
+                      - color: '#73B3D3'
+                        value: 40
+                      - color: '#8AC926'
+                        value: 60
+                      - color: '#FFCA3A'
+                        value: 80
+                      - color: '#FF595E'
+                        value: 95
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 5px;
+                        }
+                        ha-card {
+                          padding-top: 5px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                        }
+                  - type: custom:mini-graph-card
+                    name: UV Index
+                    entities:
+                      - entity: sensor.pirateweather_uv_index
+                        name: UV
+                        show_state: true
+                        state_adaptive_color: false
+                        show_labels: false
+                      - entity: sensor.pirateweather_cloud_coverage
+                        show_state: true
+                        show_legend: false
+                        show_graph: false
+                        smoothing: false
+                      - color: rgba(128,128,128,0.3)
+                        entity: sensor.pirateweather_uv_index
+                        name: Night
+                        show_legend: false
+                        show_line: false
+                        show_points: false
+                        y_axis: secondary
+                    font_size: 65
+                    line_width: 4
+                    animate: true
+                    points_per_hour: 2
+                    decimals: 0
+                    smoothing: true
+                    show:
+                      extrema: false
+                      fill: fade
+                      state: true
+                      average: false
+                      labels_secondary: false
+                      legend: false
+                      name_adaptive_color: true
+                      icon_adaptive_color: true
+                    color_thresholds:
+                      - color: '#3EA72D'
+                        value: 2
+                      - color: '#FFF300'
+                        value: 5
+                      - color: '#F18B00'
+                        value: 7
+                      - color: '#E53210'
+                        value: 10
+                      - color: '#B567A4'
+                        value: 11
+                    card_mod:
+                      style: |
+                        .name {
+                          font-size: 95%;
+                        }
+                        .header {
+                          padding-bottom: 0px;
+                        }
+                        .states {
+                          padding-bottom: 5px;
+                        }
+                        ha-card {
+                          padding-top: 5px !important;
+                        }
+                        .states.flex {
+                          font-weight: bold;
+                        }
+                        .states--secondary {
+                          font-size: 75%;
+                          margin-top: 5px;
+                          margin-right: 0px !important;
+                          font-weight: 500;
+                        }
+                    state_map:
+                      - value: low
+                        label: Low
+                      - value: moderate
+                        label: Moderate
+                      - value: high
+                        label: High
+                      - value: very-high
+                        label: Very High
+                      - value: extreme
+                        label: Extreme
+              - type: vertical-stack
+                cards:
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:mushroom-entity-card
+                        entity: sensor.home_air_quality_day_0
+                        fill_container: false
+                        icon: mdi:weather-dust
+                        secondary_info: state
+                        name: AQI Today
+                      - type: custom:mushroom-entity-card
+                        entity: sensor.home_air_quality_day_1
+                        fill_container: false
+                        icon: mdi:weather-dust
+                        name: AQI Tomorrow
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:mushroom-entity-card
+                        entity: sensor.home_air_quality_day_3
+                        fill_container: false
+                        icon: mdi:weather-dust
+                        secondary_info: state
+                        name: AQI Day 3
+                      - type: custom:mushroom-entity-card
+                        entity: sensor.home_air_quality_day_4
+                        fill_container: false
+                        icon: mdi:weather-dust
+                        name: AQI Day 4
+              - type: iframe
+                url: >-
+                  https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=11&overlay=radar&product=radar&level=surface&lat=33.856&lon=-84.308&message=true&play=1
+                grid_options:
+                  columns: full
+                  rows: 7.5
+                view_layout:
+                  place-self: center stretch
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: horizontal-buttons-stack
+                hash: '#weather'
+                name: Weather
+                icon: mdi:weather-cloudy
+                entity: light.kitchen
+                1_link: '#weather'
+                1_icon: mdi:weather-cloudy
+                auto_order: false
+                2_icon: mdi:server
+                2_link: '#server'
+                3_link: '#network'
+                3_icon: mdi:fire
+                4_icon: mdi:battery
+                4_link: '#battery'
+                5_link: '#remote'
+                5_icon: mdi:remote
+                6_link: '#music'
+                6_icon: mdi:music
+                7_icon: mdi:cog
+                7_link: http://192.168.1.3:8123/config/dashboard
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#server'
+                name: Unraid
+                icon: mdi:server
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-chips-card
+                    chips:
+                      - type: entity
+                        entity: sensor.unraid_tower_bond0_inbound
+                        name: Inbound
+                      - type: entity
+                        entity: sensor.qbittorrent_all_torrents
+                        icon: mdi:arrow-down
+                      - type: entity
+                        entity: sensor.qbittorrent_download_speed
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.ups_power
+                name: UPS Power
+                icon: mdi:lightning-bolt
+                color_thresholds:
+                  - value: 70
+                    color: green
+                  - value: 75
+                    color: yellow
+                  - value: 90
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 3
+                points_per_hour: 20
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_cpu_temperature
+                name: CPU Temp
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 3
+                points_per_hour: 20
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_cpu_usage
+                name: CPU Usage
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 4
+                points_per_hour: 20
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_ram_usage
+                name: RAM Usage
+                color_thresholds:
+                  - value: 70
+                    color: green
+                  - value: 75
+                    color: yellow
+                  - value: 90
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 3
+                points_per_hour: 20
+              - type: heading
+                heading: Disks
+                heading_style: title
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_pool_darlene_usage
+                name: Pool Darlene Usage
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 48
+                points_per_hour: 10
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_pool_elliot_usage
+                name: Pool Elliot Usage
+                color_thresholds:
+                  - value: 80
+                    color: green
+                  - value: 90
+                    color: yellow
+                  - value: 99
+                    color: red
+                hours_to_show: 48
+                points_per_hour: 10
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_pool_app_cache_usage
+                name: Pool Appdata Usage
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                hours_to_show: 48
+                points_per_hour: 10
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.unraid_tower_pool_cache_usage
+                name: Pool Cache Usage
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                hours_to_show: 48
+                points_per_hour: 10
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-entity-card
+                    entity: sensor.tautulli_watching
+                    layout: vertical
+                    fill_container: false
+                    name: Plex
+                    icon_color: accent
+                    icon: mdi:plex
+                  - type: custom:mushroom-entity-card
+                    entity: sensor.radarr_movies
+                    layout: vertical
+                    fill_container: false
+                    name: Movies
+                    icon_color: green
+                    icon: mdi:movie
+                  - type: custom:mushroom-entity-card
+                    entity: sensor.sonarr_shows
+                    layout: vertical
+                    fill_container: false
+                    name: Shows
+                    icon: mdi:television
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#network'
+                name: Network
+                icon: mdi:server
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-chips-card
+                    chips:
+                      - type: entity
+                        entity: sensor.u6_lr_uptime
+                        name: Inbound
+                        icon: mdi:restart
+                      - type: entity
+                        entity: update.unifi_gateway_update
+                        icon: mdi:arrow-down
+                      - type: entity
+                        entity: sensor.u6_lr_state
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.ups_power
+                name: UPS Power
+                icon: mdi:lightning-bolt
+                color_thresholds:
+                  - value: 70
+                    color: green
+                  - value: 75
+                    color: yellow
+                  - value: 90
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 3
+                points_per_hour: 20
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.udm_p_cpu_utilization
+                name: CPU Usage
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 3
+                points_per_hour: 20
+              - type: custom:mini-graph-card
+                entities:
+                  - sensor.udm_p_memory_utilization
+                name: Mem Usage
+                color_thresholds:
+                  - value: 79
+                    color: green
+                  - value: 88
+                    color: yellow
+                  - value: 93
+                    color: red
+                show:
+                  graph: line
+                hours_to_show: 4
+                points_per_hour: 20
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#remote'
+                name: Remote
+                icon: mdi:remote
+              - type: custom:firemote-card
+                entity: media_player.living_room_tv_adb
+                device_family: onn
+                device_type: onn-4k-streaming-box
+                compatibility_mode: default
+                android_tv_remote_entity: remote.living_room_tv
+                defaultRemoteStyle_override: ''
+                app_launch_1: plex
+                app_launch_2: youtubeTV
+                app_launch_3: youtube
+                app_launch_4: disney-plus
+                app_launch_5: ''
+                visible_name_text: Living Room
+                name_position: top
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#battery'
+                name: Sensors
+              - type: custom:auto-entities
+                card:
+                  type: entities
+                filter:
+                  include:
+                    - options: {}
+                      entity_id: '*battery*'
+                      device_manufacturer: aqara
+                    - options: {}
+                      attributes:
+                        device_class: battery
+                    - options: {}
+                      state: ''
+                  exclude:
+                    - options: {}
+                      device_manufacturer: Google
+                    - options: {}
+                      device_manufacturer: Apple
+                    - options: {}
+                      entity_id: '*ups_battery*'
+                    - options: {}
+                      state: unavailable
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#music'
+                name: Music
+                icon: mdi:music
+              - type: custom:mediocre-massive-media-player-card
+                entity_id: media_player.ma_living_room_tv
+                mode: card
+                speaker_group:
+                  entities:
+                    - media_player.kitchen_speaker
+                    - media_player.bedroom_speaker
+    badges: []
+    cards: []
+  - title: Home (OLD)
+    cards: []
+    badges:
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: sensor.lights_on_count
+        icon: mdi:lightbulb
+        color: amber
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: person.hannah
+        color: ''
+        show_entity_picture: true
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: person.tyler
+        color: ''
+        show_entity_picture: true
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: sensor.washer_dryer
+        color: green
+        tap_action:
+          action: call-service
+          service: browser_mod.navigate
+          service_data:
+            navigation_path: /room-card-test/master_bedroom
+            open_in_popup: true
+    background:
+      opacity: 80
+      alignment: center
+      size: cover
+      repeat: repeat
+      attachment: fixed
+      image: /api/image/serve/254ab3280a7c2b52f5140c1901a5175d/original
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-select-card
+            entity: input_select.room_selector
+            name: Rooms
+            fill_container: false
+            grid_options:
+              columns: 12
+              rows: 2
+          - type: custom:mushroom-entity-card
+            entity: sensor.washer_dryer_remaining_time
+            name: Washer/Dryer
+            visibility:
+              - condition: state
+                entity: sensor.washer_dryer_run_state
+                state: Drying
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: binary_sensor.kitchen_mat_mat_sensor
+                        state: 'on'
+                    chip:
+                      type: entity
+                      entity: binary_sensor.kitchen_mat_mat_sensor
+                      name: Cat food empty!
+                      icon: mdi:cat
+                      content_info: name
+              - type: custom:mushroom-climate-card
+                entity: climate.home
+                fill_container: false
+                hvac_modes:
+                  - cool
+                  - heat
+                  - fan_only
+                show_temperature_control: true
+                collapsible_controls: false
+              - type: custom:mushroom-entity-card
+                entity: input_boolean.vacation_mode
+                fill_container: false
+                tap_action:
+                  action: more-info
+                double_tap_action:
+                  action: toggle
+                name: Vacation Mode
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: House
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: entity
+                    entity: sensor.master_bedroom_temp_sensor_temperature_4
+                    name: Temp
+                  - type: entity
+                    entity: sensor.master_bedroom_temp_sensor_humidity_4
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: binary_sensor.kitchen_mat_mat_sensor
+                        state: 'off'
+                    chip:
+                      type: entity
+                      entity: binary_sensor.kitchen_mat_mat_sensor
+                      name: Cat food empty!
+                      icon: mdi:cat
+                      content_info: name
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: light.group_kitchen_lights
+                    features_position: bottom
+                    vertical: false
+                  - type: tile
+                    entity: button.cat_feeder_2_feed
+                    features_position: bottom
+                    vertical: false
+              - type: custom:mushroom-climate-card
+                fill_container: false
+                hvac_modes:
+                  - cool
+                  - heat
+                  - fan_only
+                show_temperature_control: true
+                collapsible_controls: false
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Kichen
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: entity
+                    entity: sensor.master_bedroom_temp_sensor_temperature_4
+                    name: Temp
+                  - type: entity
+                    entity: sensor.master_bedroom_temp_sensor_humidity_4
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: binary_sensor.slumbertek_04a6a0_bed_sensor
+                        state: 'on'
+                    chip:
+                      type: entity
+                      entity: binary_sensor.slumbertek_04a6a0_bed_sensor
+                      icon: mdi:bed
+                      content_info: none
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: automation.master_bedroom_rain_sounds
+                    features_position: bottom
+                    vertical: false
+                    name: Rain Sounds
+                    icon: mdi:cast-audio
+                  - type: custom:mushroom-entity-card
+                    entity: sensor.sonoff_1001f7e2d9_power
+                    name: Washer
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: switch.master_bedroom_light_bot
+                    features_position: bottom
+                    vertical: false
+                    name: Light
+                  - type: tile
+                    entity: switch.master_bedroom_fan_bot
+                    features_position: bottom
+                    vertical: false
+                    name: Fan
+                    icon: mdi:cast-audio
+              - type: custom:mushroom-climate-card
+                entity: climate.home
+                fill_container: false
+                hvac_modes:
+                  - cool
+                  - heat
+                  - fan_only
+                show_temperature_control: true
+                collapsible_controls: false
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Master Bed
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: entity
+                entity: sensor.litter_robot_4_litter_level
+                name: Litter
+                icon: mdi:cat
+              - type: entity
+                entity: sensor.litter_robot_4_waste_drawer
+                icon: mdi:emoticon-poop
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Master Bath
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: light.master_bath_lights_group
+                    features_position: bottom
+                    vertical: false
+                  - type: tile
+                    entity: switch.master_bath_smart_plug
+                    features_position: bottom
+                    vertical: false
+                    name: RGB Light Strip
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: script.bath_fan_light_on_duplicate
+                    features_position: bottom
+                    vertical: false
+                    name: Shower Light On
+                    icon: mdi:globe-light
+                  - type: tile
+                    entity: script.bath_fan_light_off
+                    features_position: bottom
+                    vertical: false
+                    name: Shower Light off
+                    icon: mdi:globe-light-outline
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: script.new_script
+                    features_position: bottom
+                    vertical: false
+                    name: Shower Fan on
+                    icon: mdi:fan
+                    hide_state: true
+                  - type: tile
+                    entity: script.new_script_2
+                    features_position: bottom
+                    vertical: false
+                    name: Shower Fan off
+                    icon: mdi:fan-off
+                    hide_state: true
+              - type: custom:mushroom-climate-card
+                entity: climate.home
+                fill_container: false
+                hvac_modes:
+                  - cool
+                  - heat
+                  - fan_only
+                show_temperature_control: true
+                collapsible_controls: false
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Master Bath
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: entity
+                entity: sensor.kenzie_room_temp_sensor_temperature_2
+                name: Room Temp
+                icon: mdi:thermometer
+              - type: entity
+                entity: sensor.kenzie_room_temp_sensor_humidity_2
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Kenzie's Room
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: light.kenzie_room_lights
+                    features_position: bottom
+                    vertical: false
+                  - type: tile
+                    entity: switch.lumi_kenzie_smartplug
+                    features_position: bottom
+                    vertical: false
+                    name: Smart Plug
+                    icon: mdi:power-plug
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: binary_sensor.kenzie_room_door_sensor_opening_4
+                    features_position: bottom
+                    vertical: false
+                    name: Door
+                    icon: mdi:door
+                  - type: tile
+                    entity: sensor.kenzie_room_door_sensor_battery_4
+                    features_position: bottom
+                    vertical: false
+                    name: Door Sensor Battery
+                    icon: mdi:battery
+              - type: custom:mushroom-climate-card
+                entity: climate.home
+                fill_container: false
+                hvac_modes:
+                  - cool
+                  - heat
+                  - fan_only
+                show_temperature_control: true
+                collapsible_controls: false
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Kenzie's Room
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: light.hall_light_group
+                    features_position: bottom
+                    vertical: false
+                  - type: tile
+                    entity: light.hannah_reading_light_light_4
+                    features_position: bottom
+                    vertical: false
+                    icon: mdi:book
+                    name: Reading Light
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    entity: light.living_room_light_fan
+                    features_position: bottom
+                    vertical: false
+                    name: Overhead light
+                    icon: mdi:globe-light
+                  - type: tile
+                    entity: fan.living_room_light_fan
+                    features_position: bottom
+                    vertical: false
+                    icon: mdi:ceiling-fan
+                    name: Overhead Fan
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    features_position: bottom
+                    vertical: false
+                    icon: mdi:door
+                    entity: sensor.sonoff_1001f642d8_power
+                    name: ENT Power
+                  - type: tile
+                    features_position: bottom
+                    vertical: false
+                    icon: mdi:battery
+                    entity: sensor.sonoff_1001f7fa43_power
+                    name: TV Plug
+              - type: custom:mushroom-light-card
+                entity: light.front_door_light_light
+                show_brightness_control: true
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    features_position: bottom
+                    vertical: false
+                    icon: mdi:door
+                    entity: switch.sonoff_1001f7fa43
+                    name: TV Plug
+                  - type: tile
+                    features_position: bottom
+                    vertical: false
+                    icon: mdi:battery
+                    entity: switch.sonoff_1001f642d8
+                    name: ENT Plug
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Living Room
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: tile
+                    features_position: bottom
+                    vertical: false
+                    entity: light.tyler_s_office_light_light
+                  - type: tile
+                    features_position: bottom
+                    vertical: false
+                    entity: sensor.ups_battery_charge
+              - type: custom:mushroom-climate-card
+                entity: climate.home
+                fill_container: false
+                hvac_modes:
+                  - cool
+                  - heat
+                  - fan_only
+                show_temperature_control: true
+                collapsible_controls: false
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Office
+          - type: conditional
+            conditions:
+              - entity: sensor.mail_usps_mail
+                state_not: 0 piece(s)
+            card:
+              square: false
+              type: grid
+              columns: 1
+              cards:
+                - show_state: false
+                  show_name: true
+                  camera_view: auto
+                  fit_mode: cover
+                  type: picture-entity
+                  entity: camera.mail_usps_camera
+                  name: USPS Camera
+                  camera_image: camera.mail_usps_camera
+                - type: entities
+                  entities:
+                    - entity: sensor.mail_usps_delivered
+                      name: USPS Delivered Packages
+                    - entity: sensor.mail_usps_mail
+                      name: USPS Delivered Mail
+          - type: custom:energy-overview-card
+            entities:
+              - power: sensor.hvac_kwh_energy
+                name: HVAC
+              - power: sensor.ups_power_usage_energy
+                name: UPS
+              - power: sensor.tyler_s_oled_monitor_energy
+                name: OLED
+              - power: sensor.lr_tv_power_energy
+                name: TV
+              - power: sensor.entertainment_center_power_energy
+                name: ENT
+            visibility:
+              - condition: state
+                entity: input_select.room_selector
+                state: Server
+    max_columns: 4
+    icon: mdi:home
+    header:
+      layout: center
+      badges_position: bottom
+      badges_wrap: wrap
