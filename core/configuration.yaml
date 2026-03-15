@@ -1,0 +1,234 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+http:
+
+wake_on_lan:
+
+switch:
+  - platform: wake_on_lan
+    name: Desktop
+    mac: aa:bb:cc:dd:ee:ff
+    broadcast_address: 192.168.1.55
+
+timer:
+  litter_box_timer:
+    duration: "08:00:00"
+
+tts:
+  - platform: google_translate
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+shopping_list:
+
+smartir:
+
+homeassistant:
+  external_url: https://p9iogi43wn9olzkpsloyfi82u6uftbg2.ui.nabu.casa
+  allowlist_external_dirs:
+    - /config/www/doorbell/
+    - /config/
+  media_dirs:
+    local: /config/
+    snapshots: /config/www/doorbell/
+
+homekit:
+  filter:
+    include_domains:
+      - light
+      - cover
+      - switch
+      - media_player
+      - binary_sensor
+
+notify:
+  - name: Tyler_Desktop_HASS
+    platform: hass_agent_notifier
+    resource: http://192.168.1.133:5115/notify
+
+emulated_hue:
+  host_ip: 192.168.1.2
+  listen_port: 8300
+  advertise_ip: 192.168.1.2
+  advertise_port: 8580
+  off_maps_to_on_domains:
+    - script
+    - scene
+  expose_by_default: true
+  exposed_domains:
+    - light
+  entities:
+    light.bedroom_light:
+      name: Bedside Lamp
+    light.ceiling_lights:
+      hidden: true
+
+################
+# THERMOSTAT
+################
+
+climate:
+  - platform: generic_thermostat
+    name: House
+    heater: switch.hvac_power
+    ac_mode: true
+    target_sensor: sensor.home_temp
+    min_temp: 68
+    max_temp: 78
+    target_temp: 73
+    cold_tolerance: 1.5
+    hot_tolerance: 1.0
+    initial_hvac_mode: cool
+    precision: 0.1
+
+################
+# TEMPLATE
+################
+
+template:
+  - trigger:
+      - platform: state
+        entity_id: climate.home
+        to: "heating"
+    sensor:
+      - name: HVAC Runtime Hours
+        unit_of_measurement: hours
+        state: >
+          {% set runtime = states('sensor.hvac_runtime_hours') | float(0) %}
+          {% set elapsed = (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed)) / 3600 %}
+          {{ runtime + elapsed if trigger.from_state.state == 'heating' else runtime }}
+
+  - sensor:
+      - name: HVAC Gas Usage
+        unit_of_measurement: therms
+        state: >
+          {% set runtime_hours = states('sensor.hvac_runtime_hours') | float(0) %}
+          {% set therms_per_hour = 0.8 %}
+          {{ runtime_hours * therms_per_hour }}
+
+      - name: Marsh Weight
+        unit_of_measurement: lbs
+        state: >
+          {% if states('sensor.litter_robot_4_pet_weight') | float < 10 %}
+            {{ states('sensor.litter_robot_4_pet_weight') }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: BB Weight
+        unit_of_measurement: lbs
+        state: >
+          {% if 9 <= states('sensor.litter_robot_4_pet_weight') | float < 15 %}
+            {{ states('sensor.litter_robot_4_pet_weight') }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: Max Weight
+        state: >
+          {% if states('sensor.litter_robot_4_pet_weight') | float >= 15 %}
+            {{ states('sensor.litter_robot_4_pet_weight') }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: UPS Power
+        unique_id: ups_power
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set load = states('sensor.ups_load') | float(0) %}
+          {% set nominal = states('sensor.ups_nominal_real_power') | float(0) %}
+          {% if load > 0 and nominal > 0 %}
+            {{ ((load / 100) * nominal) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+################
+# SENSORS
+################
+
+sensor:
+
+  - platform: integration
+    source: sensor.ups_power
+    name: UPS Energy
+    unit_prefix: k
+    round: 2
+    method: left
+    unique_id: ups_energy
+
+  - platform: weatheralerts
+    state: GA
+    zone: 45
+    county: 89
+
+  - platform: command_line
+    name: Deliveries Items Today
+    command: "python3 /config/check_mail.py items"
+    scan_interval: 120
+
+  - platform: command_line
+    name: Deliveries Count Today
+    command: "python3 /config/check_mail.py count"
+    scan_interval: 120
+
+  - platform: statistics
+    name: Bath Humidity Average
+    entity_id: sensor.lumi_lumi_weather_humidity
+    sampling_size: 40
+    max_age:
+      hours: 1
+    state_characteristic: average_linear
+
+  - platform: statistics
+    name: Bath Humidity Statistics 5min Change
+    entity_id: sensor.bad_raumsensor_bme280_humidity
+    state_characteristic: change
+    max_age:
+      minutes: 5
+    sampling_size: 30
+
+  - platform: statistics
+    name: Withings Weight Change 3d
+    entity_id: sensor.withings_weight
+    state_characteristic: change
+    max_age:
+      days: 3
+    sampling_size: 800
+
+  - platform: statistics
+    name: Withings Weight Change 7d
+    entity_id: sensor.withings_weight
+    state_characteristic: change
+    max_age:
+      days: 7
+    sampling_size: 1500
+
+  - platform: statistics
+    name: Withings Weight Change 30d
+    entity_id: sensor.withings_weight
+    state_characteristic: change
+    max_age:
+      days: 30
+    sampling_size: 5000
+
+  - platform: rest
+    name: Glances - SERVER - Uptime
+    resource: http://192.168.1.2:61208/api/3/uptime
+    value_template: "{{ value_json }}"
+
+  - platform: template
+    sensors:
+      number_of_lights_on:
+        friendly_name: Number of Lights On
+        unit_of_measurement: "on"
+        value_template: "{{ states.light | selectattr('state','eq','on') | list | count }}"

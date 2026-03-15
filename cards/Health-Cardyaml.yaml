@@ -1,0 +1,413 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#health"
+    name: Health
+    icon: mdi:heart
+    button_type: name
+  - type: markdown
+    content: |2
+        {% set weight = states('sensor.withings_weight') | float(0) %}
+
+        {# History-based statistics sensors (preferred) #}
+        {% set s3_state = states('sensor.withings_weight_change_3d') %}
+        {% set s7_state = states('sensor.withings_weight_change_7d') %}
+        {% set s30_state = states('sensor.withings_weight_change_30d') %}
+        {% set s3_attr = state_attr('sensor.withings_weight_change_3d', 'change') %}
+        {% set s7_attr = state_attr('sensor.withings_weight_change_7d', 'change') %}
+        {% set s30_attr = state_attr('sensor.withings_weight_change_30d', 'change') %}
+
+        {% set c3_stats = (s3_state | float) if s3_state not in ['unknown', 'unavailable', 'none', ''] else none %}
+        {% set c7_stats = (s7_state | float) if s7_state not in ['unknown', 'unavailable', 'none', ''] else none %}
+        {% set c30_stats = (s30_state | float) if s30_state not in ['unknown', 'unavailable', 'none', ''] else none %}
+        {% set c3_stats = c3_stats if c3_stats is not none else ((s3_attr | float) if s3_attr not in [none, 'unknown', 'unavailable', 'none', ''] else none) %}
+        {% set c7_stats = c7_stats if c7_stats is not none else ((s7_attr | float) if s7_attr not in [none, 'unknown', 'unavailable', 'none', ''] else none) %}
+        {% set c30_stats = c30_stats if c30_stats is not none else ((s30_attr | float) if s30_attr not in [none, 'unknown', 'unavailable', 'none', ''] else none) %}
+
+        {# Withings attribute fallback #}
+        {% set w7_raw = state_attr('sensor.withings_weight', 'weight_7d') %}
+        {% set w30_raw = state_attr('sensor.withings_weight', 'weight_30d') %}
+        {% set w7 = (w7_raw | float) if w7_raw not in [none, 'unknown', 'unavailable', 'none', ''] else none %}
+        {% set w30 = (w30_raw | float) if w30_raw not in [none, 'unknown', 'unavailable', 'none', ''] else none %}
+        {% set c7_fallback = (weight - w7) if w7 is not none else none %}
+        {% set c30_fallback = (weight - w30) if w30 is not none else none %}
+
+        {# Final values: prefer history, then fallback; avoid false-zero when history not ready #}
+        {% set change_3d = c3_stats if c3_stats is not none else 0.0 %}
+        {% set change_7d = c7_stats if c7_stats is not none and (c7_stats | abs > 0.001 or c7_fallback is none) else (c7_fallback if c7_fallback is not none else 0.0) %}
+        {% set change_30d = c30_stats if c30_stats is not none and (c30_stats | abs > 0.001 or c30_fallback is none) else (c30_fallback if c30_fallback is not none else 0.0) %}
+
+        **Weight Summary**
+
+        {% if change_7d < -0.5 %}
+        ✅ **Nice progress!** You're down {{ change_7d | abs | round(1) }} lbs in the last 7 days.
+        {% elif change_7d > 0.5 %}
+        ⚠️ **Slight gain** of {{ change_7d | round(1) }} lbs this week. Stay consistent!
+        {% else %}
+        ➖ **Maintaining weight** this week. Good stability!
+        {% endif %}
+
+        ⚖️ **Current Weight:** {{ weight | round(1) }} lbs  
+        📌 **3-Day Change:** {{ change_3d | round(1) }} lbs  
+        📉 **7-Day Change:** {{ change_7d | round(1) }} lbs  
+        📊 **30-Day Change:** {{ change_30d | round(1) }} lbs  
+
+        {% if change_30d < -2 %}
+        🎯 Long-term trend looks great — keep up the momentum!
+        {% elif change_30d > 2 %}
+        🔁 Possible long-term gain. Maybe reevaluate habits.
+        {% else %}
+        ✔️ Weight trend is stable long-term.
+        {% endif %}
+  - type: horizontal-stack
+    cards:
+      - type: custom:mini-graph-card
+        name: Body Fat Ratio
+        entities:
+          - entity: sensor.withings_fat_ratio
+            show_state: true
+            show_legend: false
+            state_adaptive_color: false
+        font_size: 65
+        line_width: 4
+        animate: true
+        aggregate_func: avg
+        points_per_hour: 0.0417
+        hours_to_show: 720
+        show:
+          extrema: false
+          fill: fade
+          state: true
+          average: false
+          labels_secondary: false
+          legend: false
+          name_adaptive_color: true
+          icon_adaptive_color: true
+        card_mod:
+          style: |
+            {% set fat = states('sensor.withings_fat_ratio') | float(0) %}
+            {% set fat3 = state_attr('sensor.withings_fat_ratio', 'fat_ratio_3d') %}
+            {% set fat7 = state_attr('sensor.withings_fat_ratio', 'fat_ratio_7d') %}
+            {% set fat30 = state_attr('sensor.withings_fat_ratio', 'fat_ratio_30d') %}
+
+            {% set c3 = (fat - (fat3 | float)) if fat3 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c7 = (fat - (fat7 | float)) if fat7 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c30 = (fat - (fat30 | float)) if fat30 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+
+            {% if c7 <= 0.3 %}
+              {% set trend_color = '#4caf50' %}
+            {% elif c7 > 1.0 or c3 > 0.5 or c30 > 2.0 %}
+              {% set trend_color = '#f44336' %}
+            {% else %}
+              {% set trend_color = '#ff9800' %}
+            {% endif %}
+            .name {
+              font-size: 95%;
+            }
+            .header {
+              padding-bottom: 0px;
+            }
+            .states {
+              padding-bottom: 5px;
+            }
+            ha-card {
+              padding-top: 5px !important;
+            }
+            .states.flex {
+              font-weight: bold;
+              font-size: 10px;
+            }
+            ha-card {
+              --accent-color: {{ trend_color }};
+            }
+        state_map:
+          - value: low
+            label: Low
+          - value: healthy
+            label: Healthy
+          - value: moderate
+            label: Moderate
+          - value: high
+            label: High
+          - value: very_high
+            label: Very High
+      - type: custom:mini-graph-card
+        name: Fat Mass
+        entities:
+          - entity: sensor.withings_fat_mass
+            name: Fat Mass
+            name_adaptive_color: true
+        hours_to_show: 168
+        points_per_hour: 0.0417
+        font_size: 40
+        aggregate_func: avg
+        animate: true
+        smoothing: true
+        show:
+          labels: true
+          legend: false
+          name_adaptive_color: true
+          icon_adaptive_color: true
+        card_mod:
+          style: |
+            {% set fm = states('sensor.withings_fat_mass') | float(0) %}
+            {% set fm3 = state_attr('sensor.withings_fat_mass', 'fat_mass_3d') %}
+            {% set fm7 = state_attr('sensor.withings_fat_mass', 'fat_mass_7d') %}
+            {% set fm30 = state_attr('sensor.withings_fat_mass', 'fat_mass_30d') %}
+
+            {% set c3 = (fm - (fm3 | float)) if fm3 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c7 = (fm - (fm7 | float)) if fm7 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c30 = (fm - (fm30 | float)) if fm30 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+
+            {% if c7 <= 0.4 %}
+              {% set trend_color = '#4caf50' %}
+            {% elif c7 > 1.2 or c3 > 0.6 or c30 > 2.5 %}
+              {% set trend_color = '#f44336' %}
+            {% else %}
+              {% set trend_color = '#ff9800' %}
+            {% endif %}
+            .name {
+              font-size: 95%;
+            }
+            .header {
+              padding-bottom: 0px;
+            }
+            .states {
+              padding-bottom: 5px;
+            }
+            ha-card {
+              padding-top: 4px !important;
+            }
+            .states.flex {
+              font-weight: bold;
+              font-size: 10px;
+            }
+            ha-card {
+              --accent-color: {{ trend_color }};
+            }
+  - type: horizontal-stack
+    cards:
+      - type: custom:mini-graph-card
+        name: Weight
+        entities:
+          - entity: sensor.withings_weight
+            name: Weight
+            name_adaptive_color: true
+        hours_to_show: 720
+        points_per_hour: 0.0417
+        font_size: 40
+        aggregate_func: avg
+        animate: true
+        smoothing: true
+        show:
+          labels: true
+          legend: false
+          name_adaptive_color: true
+          icon_adaptive_color: true
+        card_mod:
+          style: |
+            {% set c3 = states('sensor.withings_weight_change_3d') | float(0) %}
+            {% set c7 = states('sensor.withings_weight_change_7d') | float(0) %}
+            {% set c30 = states('sensor.withings_weight_change_30d') | float(0) %}
+            {% if c7 <= 0.5 %}
+              {% set trend_color = '#4caf50' %}
+            {% elif c7 > 2 or c3 > 1 or c30 > 4 %}
+              {% set trend_color = '#f44336' %}
+            {% else %}
+              {% set trend_color = '#ff9800' %}
+            {% endif %}
+            .name {
+              font-size: 95%;
+            }
+            .header {
+              padding-bottom: 0px;
+            }
+            .states {
+              padding-bottom: 5px;
+            }
+            ha-card {
+              padding-top: 4px !important;
+            }
+            .states.flex {
+              font-weight: bold;
+              font-size: 10px;
+            }
+            ha-card {
+              --accent-color: {{ trend_color }};
+            }
+    grid_options:
+      columns: 12
+      rows: auto
+  - type: horizontal-stack
+    cards:
+      - type: custom:mini-graph-card
+        name: Muscle Mass
+        entities:
+          - entity: sensor.withings_muscle_mass
+            show_state: true
+            show_legend: false
+            state_adaptive_color: false
+        font_size: 65
+        line_width: 4
+        animate: true
+        aggregate_func: avg
+        points_per_hour: 0.0417
+        hours_to_show: 720
+        show:
+          extrema: false
+          fill: fade
+          state: true
+          average: false
+          labels_secondary: false
+          legend: false
+          name_adaptive_color: true
+          icon_adaptive_color: true
+        card_mod:
+          style: |
+            {% set mm = states('sensor.withings_muscle_mass') | float(0) %}
+            {% set mm3 = state_attr('sensor.withings_muscle_mass', 'muscle_mass_3d') %}
+            {% set mm7 = state_attr('sensor.withings_muscle_mass', 'muscle_mass_7d') %}
+            {% set mm30 = state_attr('sensor.withings_muscle_mass', 'muscle_mass_30d') %}
+
+            {% set c3 = (mm - (mm3 | float)) if mm3 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c7 = (mm - (mm7 | float)) if mm7 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c30 = (mm - (mm30 | float)) if mm30 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+
+            {% if c7 >= -0.2 %}
+              {% set trend_color = '#4caf50' %}
+            {% elif c7 < -1.0 or c3 < -0.5 or c30 < -2.0 %}
+              {% set trend_color = '#f44336' %}
+            {% else %}
+              {% set trend_color = '#ff9800' %}
+            {% endif %}
+            .name {
+              font-size: 95%;
+            }
+            .header {
+              padding-bottom: 0px;
+            }
+            .states {
+              padding-bottom: 5px;
+            }
+            ha-card {
+              padding-top: 5px !important;
+            }
+            .states.flex {
+              font-weight: bold;
+              font-size: 10px;
+            }
+            ha-card {
+              --accent-color: {{ trend_color }};
+            }
+        state_map:
+          - value: low
+            label: Low
+          - value: healthy
+            label: Healthy
+          - value: moderate
+            label: Moderate
+          - value: high
+            label: High
+          - value: very_high
+            label: Very High
+      - type: custom:mini-graph-card
+        name: Hydration
+        entities:
+          - entity: sensor.withings_hydration
+            name: Fat Mass
+            name_adaptive_color: true
+        hours_to_show: 168
+        points_per_hour: 0.0417
+        font_size: 40
+        aggregate_func: avg
+        animate: true
+        smoothing: true
+        show:
+          labels: true
+          legend: false
+          name_adaptive_color: true
+          icon_adaptive_color: true
+        card_mod:
+          style: |
+            {% set hy = states('sensor.withings_hydration') | float(0) %}
+            {% set hy3 = state_attr('sensor.withings_hydration', 'hydration_3d') %}
+            {% set hy7 = state_attr('sensor.withings_hydration', 'hydration_7d') %}
+            {% set hy30 = state_attr('sensor.withings_hydration', 'hydration_30d') %}
+
+            {% set c3 = (hy - (hy3 | float)) if hy3 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c7 = (hy - (hy7 | float)) if hy7 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+            {% set c30 = (hy - (hy30 | float)) if hy30 not in [none, 'unknown', 'unavailable', 'none', ''] else 0 %}
+
+            {% if c7 >= -0.3 %}
+              {% set trend_color = '#4caf50' %}
+            {% elif c7 < -1.5 or c3 < -0.8 or c30 < -3.0 %}
+              {% set trend_color = '#f44336' %}
+            {% else %}
+              {% set trend_color = '#ff9800' %}
+            {% endif %}
+            .name {
+              font-size: 95%;
+            }
+            .header {
+              padding-bottom: 0px;
+            }
+            .states {
+              padding-bottom: 5px;
+            }
+            ha-card {
+              padding-top: 4px !important;
+            }
+            .states.flex {
+              font-weight: bold;
+              font-size: 10px;
+            }
+            ha-card {
+              --accent-color: {{ trend_color }};
+            }
+  - type: custom:mini-graph-card
+    name: Sleep
+    entities:
+      - entity: sensor.tyler_phone_sleep_duration_3
+        name: Sleep
+        name_adaptive_color: true
+    hours_to_show: 96
+    points_per_hour: 0.0417
+    font_size: 40
+    aggregate_func: avg
+    animate: true
+    smoothing: true
+    show:
+      labels: true
+      legend: false
+      name_adaptive_color: true
+      icon_adaptive_color: true
+    color_thresholds:
+      - value: 150
+        color: "#4caf50"
+      - value: 160
+        color: "#cddc39"
+      - value: 170
+        color: "#ffeb3b"
+      - value: 180
+        color: "#ff9800"
+      - value: 190
+        color: "#f44336"
+    card_mod:
+      style: |
+        .name {
+          font-size: 95%;
+        }
+        .header {
+          padding-bottom: 0px;
+        }
+        .states {
+          padding-bottom: 5px;
+        }
+        ha-card {
+          padding-top: 4px !important;
+        }
+        .states.flex {
+          font-weight: bold;
+          font-size: 10px;
+        }

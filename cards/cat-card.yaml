@@ -1,0 +1,475 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#cat"
+    name: Cat
+    icon: mdi:cat
+    button_type: name
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: custom:swipe-card
+        parameters:
+          spaceBetween: 10
+          pagination:
+            type: bullets
+        cards:
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const w = parseFloat(states['sensor.marsh_weight_3']?.state || 0);
+                  const detectedWeight = parseFloat(states['sensor.litter_robot_4_pet_weight']?.state || 0);
+                  const prevAttr = states['sensor.marsh_weight_3']?.attributes?.previous_value ?? states['sensor.marsh_weight_3']?.attributes?.last_value;
+                  const prev = parseFloat(prevAttr);
+                  const hasTrend = !isNaN(prev);
+                  const delta = hasTrend ? (w - prev) : 0;
+                  const trendColor = !hasTrend ? "#777" : (delta > 0 ? "#e53935" : (delta < 0 ? "#43a047" : "#777"));
+                  const trendText = !hasTrend ? "n/a" : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} lbs`;
+
+                  let color = "#43a047";
+                  if (w < 6) color = "#e53935";
+                  else if (w <= 7) color = "#fb8c00";
+
+                  const percent = Math.min(100, (w/12)*100);
+
+                  return `
+                  <div style="text-align:center;color:#222;">
+                    <div style="font-size:18px;font-weight:600;margin-bottom:4px">
+                      Marsh Weight
+                    </div>
+
+                    <ha-icon icon="mdi:weight-pound" style="width:60px;height:60px;color:#546e7a;"></ha-icon>
+
+                    <div style="font-size:28px;font-weight:700;line-height:1;">
+                      ${w} lbs
+                    </div>
+
+                    <div style="font-size:12px;margin-top:2px;color:${trendColor}">
+                      Trend: ${trendText}
+                    </div>
+
+                    <div style="margin-top:8px;height:8px;background:#ddd;border-radius:6px;overflow:hidden;">
+                      <div style="height:100%;width:${percent}%;background:${color};"></div>
+                    </div>
+
+                    <div style="font-size:12px;margin-top:6px;color:#555;line-height:1;">
+                      Last detect: ${detectedWeight || 0} lbs
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#e8f5e9"
+                - border-radius: 16px
+                - padding: 6px 20px 20px 20px
+                - height: 198px
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const w = parseFloat(states['sensor.max_weight_2']?.state || 0);
+                  const detectedWeight = parseFloat(states['sensor.litter_robot_4_pet_weight']?.state || 0);
+                  const prevAttr = states['sensor.max_weight_2']?.attributes?.previous_value ?? states['sensor.max_weight_2']?.attributes?.last_value;
+                  const prev = parseFloat(prevAttr);
+                  const hasTrend = !isNaN(prev);
+                  const delta = hasTrend ? (w - prev) : 0;
+                  const trendColor = !hasTrend ? "#777" : (delta > 0 ? "#e53935" : (delta < 0 ? "#43a047" : "#777"));
+                  const trendText = !hasTrend ? "n/a" : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} lbs`;
+
+                  let color = "#43a047";
+                  if (w > 15) color = "#e53935";
+
+                  const percent = Math.min(100, (w/18)*100);
+
+                  return `
+                  <div style="text-align:center;color:#222;">
+                    <div style="font-size:18px;font-weight:600;margin-bottom:4px">
+                      Max Weight
+                    </div>
+
+                    <ha-icon icon="mdi:weight-pound" style="width:60px;height:60px;color:#546e7a;"></ha-icon>
+
+                    <div style="font-size:28px;font-weight:700;line-height:1;">
+                      ${w} lbs
+                    </div>
+
+                    <div style="font-size:12px;margin-top:2px;color:${trendColor}">
+                      Trend: ${trendText}
+                    </div>
+
+                    <div style="margin-top:8px;height:8px;background:#ddd;border-radius:6px;overflow:hidden;">
+                      <div style="height:100%;width:${percent}%;background:${color};"></div>
+                    </div>
+
+                    <div style="font-size:12px;margin-top:6px;color:#555;line-height:1;">
+                      Last detect: ${detectedWeight || 0} lbs
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#e8f5e9"
+                - border-radius: 16px
+                - padding: 6px 20px 20px 20px
+                - height: 198px
+      - type: custom:button-card
+        show_icon: false
+        show_name: false
+        custom_fields:
+          body: |
+            [[[
+              const litter = parseFloat(states['sensor.litter_robot_4_litter_level']?.state || 0);
+              const waste = parseFloat(states['sensor.litter_robot_4_waste_drawer']?.state || 0);
+              const marshVisits = parseInt(states['sensor.marsh_visits_today']?.state || 0, 10);
+              const maxVisits = parseInt(states['sensor.max_visits_today_2']?.state || 0, 10);
+              const visits = (isNaN(marshVisits) ? 0 : marshVisits) + (isNaN(maxVisits) ? 0 : maxVisits);
+              const status = (states['sensor.litter_robot_4_status_code']?.state || '').toLowerCase();
+              const online = status !== 'unavailable';
+              const dotColor = online ? "#43a047" : "#e53935";
+              const litterStateRaw = states['vacuum.litter_robot_4_litter_box']?.state || 'unknown';
+              const litterState = litterStateRaw === 'docked' ? 'ready' : litterStateRaw;
+              const stateColor = litterState === 'ready' ? "#43a047" : (litterState === 'cleaning' ? "#fb8c00" : "#546e7a");
+              const lastSeenRaw = states['sensor.litter_robot_4_last_seen']?.state;
+              let lastSeenText = 'unknown';
+              if (lastSeenRaw && lastSeenRaw !== 'unknown' && lastSeenRaw !== 'unavailable') {
+                const seenDate = new Date(lastSeenRaw);
+                if (!isNaN(seenDate.getTime())) {
+                  const mins = Math.max(0, Math.round((Date.now() - seenDate.getTime()) / 60000));
+                  lastSeenText = `${mins} min ago`;
+                }
+              }
+
+              let litterColor = "#43a047";
+              if (litter < 30) litterColor = "#e53935";
+              else if (litter < 60) litterColor = "#fb8c00";
+
+              let wasteColor = "#43a047";
+              if (waste >= 80) wasteColor = "#e53935";
+              else if (waste >= 50) wasteColor = "#fb8c00";
+
+              return `
+              <div style="position:relative;text-align:center;color:#222">
+
+                <div style="
+                  position:absolute;
+                  top:8px;
+                  right:8px;
+                  width:12px;
+                  height:12px;
+                  border-radius:50%;
+                  background:${dotColor};
+                "></div>
+
+                <div style="font-size:18px;font-weight:600;margin-bottom:6px">
+                  Litter Box
+                </div>
+
+                <div style="margin-bottom:6px;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;background:${stateColor};padding:2px 7px;border-radius:12px;">
+                    state: ${litterState}
+                  </span>
+                </div>
+
+                <img src="/local/icons/litter_robot.png" width="70">
+
+                <div style="margin-top:10px;font-size:13px">
+                  Litter: <span style="color:${litterColor};font-weight:600">${litter}%</span>
+                  |
+                  Waste: <span style="color:${wasteColor};font-weight:600">${waste}%</span>
+                </div>
+
+                <div style="font-size:13px;color:#555;margin-top:6px">
+                  ${visits} visits today
+                </div>
+
+                <div style="font-size:12px;color:#555;margin-top:2px">
+                  Last seen: ${lastSeenText}
+                </div>
+
+              </div>
+              `
+            ]]]
+        styles:
+          grid:
+            - grid-template-areas: "\"body\""
+          card:
+            - background: "#e8f5e9"
+            - border-radius: 16px
+            - padding: 20px
+            - height: 198px
+      - type: custom:button-card
+        show_icon: false
+        show_name: false
+        custom_fields:
+          body: |
+            [[[
+              const fedAmount = states['sensor.granary_smart_feeder_today_s_feeding_quantity_weight']?.state || "0";
+              const lastFeedRaw = states['sensor.granary_smart_feeder_last_feed_time']?.state;
+              const feedsToday = parseInt(states['sensor.granary_smart_feeder_today_s_feeding_times']?.state || 0, 10) || 0;
+              const feederOnline = states['binary_sensor.granary_smart_feeder_wi_fi']?.state === 'on';
+              const dotColor = feederOnline ? "#43a047" : "#e53935";
+              const feederProblem = states['binary_sensor.granary_smart_feeder_food_status']?.state === 'on' || states['binary_sensor.granary_smart_feeder_food_dispenser']?.state === 'on';
+              const problemColor = feederProblem ? "#e53935" : "#43a047";
+              const problemText = feederProblem ? "issue" : "ok";
+              let lastFeedText = "unknown";
+
+              if (lastFeedRaw && lastFeedRaw !== 'unknown' && lastFeedRaw !== 'unavailable') {
+                const lastFeedDate = new Date(lastFeedRaw);
+                if (!isNaN(lastFeedDate.getTime())) {
+                  lastFeedText = lastFeedDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                }
+              }
+
+              return `
+              <div style="position:relative;text-align:center;color:#222">
+
+                <div style="
+                  position:absolute;
+                  top:8px;
+                  right:8px;
+                  width:12px;
+                  height:12px;
+                  border-radius:50%;
+                  background:${dotColor};
+                "></div>
+
+                <div style="font-size:16px;font-weight:600;margin-bottom:6px">
+                  Food
+                </div>
+
+                <div style="margin-bottom:6px;">
+                  <span style="font-size:11px;font-weight:700;color:#fff;background:${problemColor};padding:2px 7px;border-radius:12px;">
+                    state: ${problemText}
+                  </span>
+                </div>
+
+                <img src="/local/icons/cat_feeder.png" width="60">
+
+                <div style="margin-top:6px;font-size:12px;color:#555">
+                  dispensed today: <span style="font-weight:700;color:#222;">${fedAmount}g</span>
+                </div>
+
+                <div style="margin-top:4px;font-size:12px;color:#555">
+                  Last feed: ${lastFeedText}
+                </div>
+
+                <div style="margin-top:2px;font-size:12px;color:#555">
+                  Feeds today: ${feedsToday}
+                </div>
+
+              </div>
+              `
+            ]]]
+        styles:
+          grid:
+            - grid-template-areas: "\"body\""
+          card:
+            - background: "#e8f5e9"
+            - border-radius: 16px
+            - padding: 20px
+            - height: 188px
+      - type: custom:swipe-card
+        parameters:
+          spaceBetween: 10
+          pagination:
+            type: bullets
+        cards:
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const water = Math.floor(parseFloat(states['sensor.dockstream_2_smart_fountain_remaining_water']?.state || 0));
+                  const capacity = 84;
+                  const percent = Math.min(100, (water / capacity) * 100);
+                  const waterPercent = Math.round(parseFloat(states['sensor.dockstream_2_smart_fountain_remaining_water_2']?.state || percent));
+                  const filterDays = states['sensor.dockstream_2_smart_fountain_remaining_filter_day']?.state || "0";
+                  const consumedToday = parseFloat(states['sensor.dockstream_2_smart_fountain_today_s_water_consumption']?.state || 0);
+                  const wifiOnline = states['binary_sensor.dockstream_2_smart_fountain_wi_fi']?.state === 'on';
+                  const dotColor = wifiOnline ? "#43a047" : "#e53935";
+
+                  let waterColor = "#43a047";
+                  if (water < 10) waterColor = "#e53935";
+                  else if (water < 20) waterColor = "#fb8c00";
+
+                  return `
+                  <div style="position:relative;text-align:center;color:#222">
+
+                    <div style="
+                      position:absolute;
+                      top:8px;
+                      right:8px;
+                      width:12px;
+                      height:12px;
+                      border-radius:50%;
+                      background:${dotColor};
+                    "></div>
+
+                    <div style="font-size:16px;font-weight:600;margin-bottom:3px;line-height:1;">Water</div>
+
+                    <ha-icon icon="mdi:fountain" style="width:46px;height:46px;color:#4fc3f7;margin-top:-3px;"></ha-icon>
+
+                    <div style="margin-top:3px;font-size:23px;font-weight:700;color:${waterColor};line-height:1.1;">
+                      ${water} oz (${waterPercent}%)
+                    </div>
+
+                    <div style="margin-top:7px;height:7px;background:#ddd;border-radius:6px;overflow:hidden;">
+                      <div style="height:100%;width:${percent}%;background:${waterColor};"></div>
+                    </div>
+
+                    <div style="margin-top:4px;font-size:11px;color:#555;line-height:1.1;">
+                      Filter: ${filterDays} days
+                    </div>
+
+                    <div style="margin-top:1px;font-size:11px;color:#555;line-height:1.1;">
+                      Water today: ${consumedToday.toFixed(1)} oz
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#e8f5e9"
+                - border-radius: 16px
+                - padding: 20px
+                - height: 188px
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const cleaning = states['sensor.dockstream_2_smart_fountain_remaining_cleaning_days']?.state || "0";
+
+                  return `
+                  <div style="text-align:center;color:#222">
+                    <div style="font-size:16px;font-weight:600;margin-bottom:8px">Cleaning</div>
+                    <ha-icon icon="mdi:broom" style="width:50px;height:50px;color:#ffb74d;"></ha-icon>
+                    <div style="margin-top:6px;font-size:26px;font-weight:700;color:#fb8c00">
+                      ${cleaning} days
+                    </div>
+                    <div style="font-size:13px;margin-top:8px;color:#555">
+                      until cleaning
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#fff3e0"
+                - border-radius: 16px
+                - padding: 22px
+                - height: 180px
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const online = states['binary_sensor.dockstream_2_smart_fountain_wi_fi']?.state === 'on';
+                  const dotColor = online ? "#43a047" : "#e53935";
+                  const statusText = online ? "Online" : "Offline";
+
+                  return `
+                  <div style="position:relative;text-align:center;color:#222">
+                    <div style="font-size:16px;font-weight:600;margin-bottom:6px">Wi-Fi Status</div>
+                    <div style="width:50px;height:50px;margin:0 auto;border-radius:50%;background:${dotColor};"></div>
+                    <div style="margin-top:6px;font-size:26px;font-weight:700;color:${dotColor}">
+                      ${statusText}
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#e0f7fa"
+                - border-radius: 16px
+                - padding: 22px
+                - height: 180px
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const time = states['sensor.dockstream_2_smart_fountain_today_s_average_drinking_time']?.state || "0:00";
+
+                  return `
+                  <div style="text-align:center;color:#222">
+                    <div style="font-size:16px;font-weight:600;margin-bottom:8px">Avg Drinking Time</div>
+                    <ha-icon icon="mdi:clock-time-four-outline" style="width:50px;height:50px;color:#1e88e5;"></ha-icon>
+                    <div style="margin-top:6px;font-size:26px;font-weight:700;color:#1e88e5">
+                      ${time}
+                    </div>
+                    <div style="font-size:13px;margin-top:8px;color:#555">
+                      today
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#e3f2fd"
+                - border-radius: 16px
+                - padding: 22px
+                - height: 180px
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            custom_fields:
+              body: |
+                [[[
+                  const consumed = parseFloat(states['sensor.dockstream_2_smart_fountain_today_s_water_consumption']?.state || 0);
+
+                  return `
+                  <div style="text-align:center;color:#222">
+                    <div style="font-size:16px;font-weight:600;margin-bottom:8px">Water Consumed</div>
+                    <ha-icon icon="mdi:cup-water" style="width:50px;height:50px;color:#4fc3f7;"></ha-icon>
+                    <div style="margin-top:6px;font-size:26px;font-weight:700;color:#43a047">
+                      ${consumed} oz
+                    </div>
+                    <div style="font-size:13px;margin-top:8px;color:#555">
+                      today
+                    </div>
+                  </div>
+                  `
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: "\"body\""
+              card:
+                - background: "#e8f5e9"
+                - border-radius: 16px
+                - padding: 22px
+                - height: 180px
+  - type: history-graph
+    title: Litterbox Visits (Last 7 Days)
+    hours_to_show: 168
+    refresh_interval: 60
+    entities:
+      - entity: sensor.marsh_visits_today
+        name: Marsh
+      - entity: sensor.max_visits_today_2
+        name: Max

@@ -1,0 +1,86 @@
+type: custom:navbar-card
+direction: vertical
+show_labels: true
+routes:
+  - icon: mdi:weather-partly-cloudy
+    label: Weather
+    tap_action:
+      action: navigate
+      navigation_path: "#weather"
+    url: null
+  - icon: mdi:calendar-month
+    label: Calendar
+    tap_action:
+      action: navigate
+      navigation_path: "#calendar"
+  - icon: mdi:heart
+    label: Health
+    tap_action:
+      action: navigate
+      navigation_path: "#health"
+  - icon: mdi:remote-tv
+    label: Master
+    tap_action:
+      action: navigate
+      navigation_path: "#remote"
+  - icon: mdi:cat
+    label: NAS
+    tap_action:
+      action: navigate
+      navigation_path: "#cat"
+  - icon: mdi:vacuum
+    label: ""
+    url: null
+    tap_action:
+      action: navigate
+      navigation_path: "#vac"
+  - icon: mdi:dots-horizontal
+    label: Settings
+    tap_action:
+      action: open-popup
+    popup:
+      - icon: mdi:chart-timeline
+        label: ""
+        url: ""
+        tap_action:
+          action: navigate
+          navigation_path: "#timeline"
+      - icon: mdi:alert-circle-outline
+        label: Batteries
+        url: ""
+        tap_action:
+          action: navigate
+          navigation_path: "#battery"
+        icon_selected: mdi:battery
+      - icon: mdi:cog-outline
+        label: ""
+        url: /config/dashboard
+        icon_selected: mdi:cog
+      - icon: mdi:restart
+        label: ""
+        url: ""
+        icon_selected: mdi:restart-alert
+        tap_action:
+          action: perform-action
+          perform_action: homeassistant.restart
+          target: {}
+style: |
+  ha-card {
+    height: 100%;
+    width: 80px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
+mobile:
+  mode: floating
+desktop:
+  position: bottom
+layout:
+  reflect_child_state: false
+  auto_padding:
+    enabled: true
+haptic:
+  url: true
+  tap_action: true
