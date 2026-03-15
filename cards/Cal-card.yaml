@@ -1,0 +1,58 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#calendar"
+    name: Google Calendar
+    icon: mdi:calendar
+    entity: calendar.ktcox92_gmail_com
+  - entities:
+      - entity: calendar.ktcox92_gmail_com
+        accent_color: "#03a9f4"
+        color: "var(--primary-text-color)"
+        compact_events_to_show: 10
+    title: Upcoming Events
+    days_to_show: 7
+    compact_days_to_show: 3
+    compact_events_to_show: 10
+    compact_events_complete_days: true
+    start_date: "today"
+    first_day_of_week: system
+    date_vertical_alignment: middle
+    show_past_events: true
+    show_empty_days: false
+    show_time: true
+    show_end_time: true
+    show_location: true
+    remove_location_country: true
+    time_24h: false
+    event_background_opacity: 12
+    vertical_line_width: 4px
+    event_spacing: 6px
+    day_spacing: 8px
+    day_separator_width: 1px
+    day_separator_color: "#03a9f450"
+    month_separator_width: 2px
+    month_separator_color: "#03a9f480"
+    weekend_day_color: "#c6d8ff"
+    today_day_color: "#7dd3fc"
+    today_weekday_color: "#7dd3fc"
+    show_countdown: true
+    tap_action:
+      action: expand
+    refresh_interval: 5
+    refresh_on_navigate: true
+    background_color: "rgba(10, 15, 28, 0.58)"
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 24px;
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+          background: linear-gradient(135deg, rgba(28, 44, 84, 0.86), rgba(92, 33, 65, 0.86));
+          backdrop-filter: blur(4px);
+        }
+        .card-header {
+          font-weight: 700;
+          letter-spacing: 0.2px;
+        }
+    type: custom:calendar-card-pro

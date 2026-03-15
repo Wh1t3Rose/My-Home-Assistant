@@ -1,0 +1,455 @@
+    type: custom:vertical-stack-in-card
+    cards:
+      - content:
+          - light
+          - input_boolean.bathroom_fan_toggle
+          - fan
+          - input_boolean
+          - media_player
+          - vacuum
+          - binary_sensor - moisture
+          - binary_sensor - vibration
+          - binary_sensor - opening
+        type: custom:status-card
+        hide_person: false
+        list_mode: false
+        hide_content_name: true
+        customization:
+          - type: vacuum
+        hide_filter: entity
+        extra_entities:
+          - input_boolean.bathroom_fan_toggle
+        content_layout: vertical
+        square: false
+        no_scroll: false
+        hidden_entities:
+          - light.kitchen_light_3_light
+          - light.kitchen_light_2_light
+          - light.kitchen_light_1
+          - light.master_bathroom_light_4_light_3
+          - light.master_bathroom_light_3_light
+          - light.master_bathroom_light_2_light_2
+          - light.master_bathroom_light_1_light
+          - light.hall_light_5_light
+          - light.hall_light_4_light
+          - light.hall_light_3_light_5
+          - light.hall_light_1_light
+          - binary_sensor.dockstream_2_smart_fountain_water_dispensing_state
+        grid_options:
+          columns: 12
+          rows: 2
+        columns: 4
+        show_total_entities: false
+        show_total_number: false
+      - type: conditional
+        conditions:
+          - condition: state
+            entity: binary_sensor.washer_dryer_door_open
+            state: "off"
+        card:
+          type: custom:stack-in-card
+          mode: horizontal
+          style: |
+            ha-card {
+              gap: 0px;
+              padding: 0;
+            }
+          cards:
+            - type: custom:entity-progress-card
+              entity: sensor.washer_progress
+              name: Washer/Dryer
+              icon: mdi:washing-machine
+              bar_position: bottom
+              bar_size: large
+              color: primary
+              unit: "%"
+              tap_action:
+                action: more-info
+      - type: custom:stack-in-card
+        mode: horizontal
+        style: |
+          ha-card {
+            gap: 0px;
+            padding: 0;
+          }
+        cards:
+          - type: tile
+            features_position: bottom
+            entity: sensor.hannah_iphone_battery_level
+            name: iPhone
+          - type: tile
+            features_position: bottom
+            entity: sensor.tyler_phone_battery_level_2
+            name: Tyler Phone
+          - type: tile
+            features_position: bottom
+            entity: sensor.tyler_watch_battery_level
+            name: PWatch
+      - type: custom:vertical-stack-in-card
+        cards:
+          - type: horizontal-stack
+            cards:
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                toggle_domains:
+                  - light
+                  - media_player
+                  - switch
+                popup_domains:
+                  - switch
+                  - light
+                  - media_player
+                type: custom:area-card-plus
+                area: baby_room
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                extra_entities:
+                  - light.kenzie_room_lights
+                  - switch.lumi_kenzie_smartplug
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - switch.kenzie_motion_sensor_led_trigger_indicator_2
+                  - light.kenzie_light_1_light_6
+                  - light.kenzie_light_2_light_7
+                sensor_color: yellow
+                custom_buttons: []
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAHB3k991Grw80hCoIiUMfSsPcq2To7oVwqw&s');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                      height: 300px;
+                    }
+                popup_sort: name
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                toggle_domains:
+                  - light
+                  - switch
+                  - fan
+                  - media_player
+                popup_domains:
+                  - fan
+                  - light
+                  - media_player
+                  - remote
+                  - switch
+                type: custom:area-card-plus
+                area: living_room
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - media_player.living_room_tv_2
+                  - remote.living_room_tv
+                  - media_player.living_room_tv_google_cast
+                  - remote.living_room_tv_adb
+                  - media_player.living_room_tv_adb
+                  - switch.sonoff_1001f7fa43
+                  - switch.tyler_s_echo_plus_do_not_disturb_switch
+                  - switch.tyler_s_echo_plus_repeat_switch
+                  - switch.tyler_s_echo_plus_shuffle_switch
+                extra_entities: []
+                sensor_color: amber
+                custom_buttons: []
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://swyfthome.com/cdn/shop/articles/pexels-max-vakhtbovych-6186821-min.jpg?v=1727880537');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                      height: 300px;
+                    }
+          - type: horizontal-stack
+            cards:
+              - alert_classes:
+                  - motion
+                  - moisture
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                toggle_domains:
+                  - switch
+                  - light
+                popup_domains:
+                  - switch
+                  - light
+                  - sensor
+                type: custom:area-card-plus
+                area: kitchen
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - switch.kitchen_motion_sensor_led_trigger_indicator
+                  - >-
+                    switch.kitchen_mat_calibration_place_your_mat_turn_on_calibration_put_your_desired_load_on_mat_turn_off_calibration_auto_adjusts_sensitivity_for_you
+                  - switch.espresense_kitchen_arduino_ota
+                  - switch.espresense_kitchen_auto_update
+                  - switch.espresense_kitchen_prerelease
+                  - sensor.kitchen_mat_internal_temperature
+                  - sensor.kitchen_mat_reset_counter
+                  - sensor.kitchen_mat_wifi_signal_strength
+                  - sensor.kitchen_freezer_door_sensor_device_temperature
+                  - sensor.kitchen_vibration_sensoir_device_temperature_2
+                  - sensor.kitchen_vibration_sensor_device_temperature_3
+                  - sensor.espresense_kitchen_free_mem
+                  - sensor.espresense_kitchen_uptime
+                  - sensor.kitchen_light_1_energy
+                  - sensor.kitchen_light_2_energy
+                  - sensor.kitchen_mat_pressure_voltage
+                hide_unavailable: true
+                sensor_color: amber
+                custom_buttons: []
+                excluded_entities:
+                  - sensor.kitchen_mat_internal_temperature
+                  - sensor.range_temperature_measurement
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3LxBx2JUdQIcR_kiRqTgg_8LSBhBQMmFR3-tfcjwRnA&s=10.');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }
+              - alert_classes: []
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                  - light
+                toggle_domains:
+                  - switch
+                  - media_player
+                popup_domains:
+                  - light
+                  - media_player
+                  - switch
+                  - sensor
+                type: custom:area-card-plus
+                area: master_bath
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                extra_entities:
+                  - light.master_bath_lights_group
+                  - sensor.litter_robot_4_litter_level
+                  - sensor.litter_robot_4_waste_drawer
+                  - sensor.litter_robot_4_last_seen
+                  - sensor.litter_robot_4_status_code
+                hidden_entities:
+                  - sensor.tyler_s_home_netwerks_fan_7148_next_timer
+                  - media_player.tyler_s_home_netwerks_fan_7148
+                  - switch.tyler_s_home_netwerks_fan_7148_do_not_disturb_switch
+                hide_unavailable: true
+                sensor_color: black
+                custom_buttons: []
+                excluded_entities:
+                  - sensor.shower_door_sensor_device_temperature
+                  - sensor.master_bathroom_motion_sensor_device_temperature
+                  - sensor.master_bathroom_door_sensor_device_temperature_5
+                  - sensor.master_bath_water_leak_sensor_device_temperature_2
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf95EcgRb0Q7MdGJFbUKW2VMffirOExtPCIw&spg');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }
+          - type: horizontal-stack
+            cards:
+              - alert_classes:
+                  - problem
+                  - opening
+                  - motion
+                  - occupancy
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                toggle_domains:
+                  - media_player
+                  - fan
+                  - light
+                popup_domains:
+                  - fan
+                  - light
+                  - input_select
+                  - media_player
+                  - climate
+                type: custom:area-card-plus
+                area: master_bedroom
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                hidden_entities:
+                  - switch.espresense_kitchen_arduino_ota
+                  - switch.kitchen_motion_sensor_led_trigger_indicator
+                  - >-
+                    switch.kitchen_mat_calibration_place_your_mat_turn_on_calibration_put_your_desired_load_on_mat_turn_off_calibration_auto_adjusts_sensitivity_for_you
+                  - switch.espresense_kitchen_auto_update
+                  - switch.espresense_kitchen_prerelease
+                  - >-
+                    switch.slumbertek_04a6a0_calibration_turn_on_lay_on_bed_for_at_least_30s_get_out_of_bed_turn_off
+                  - >-
+                    switch.slumbertek_04a6a0_send_data_to_asc_if_you_run_no_internet_ha_turn_this_off
+                  - switch.master_bedroom_motion_sensor_led_trigger_indicator_3
+                sensor_color: blue
+                extra_entities:
+                  - climate.home_thermostat
+                  - binary_sensor.slumbertek_04a6a0_bed_sensor
+                  - sensor.master_bedroom_temp_sensor_humidity_4
+                  - sensor.master_bedroom_temp_sensor_temperature_4
+                  - sensor.master_bedroom_light_bot_battery
+                  - sensor.master_bedroom_fan_bot_battery
+                  - input_select.ambient_sounds
+                hide_unavailable: true
+                custom_buttons: []
+                excluded_entities:
+                  - sensor.slumber_calibration_status
+                  - sensor.slumber_dynamic_empty_bed_threshold
+                  - sensor.slumber_dynamic_full_bed_threshold
+                  - sensor.slumber_empty_bed_value
+                  - sensor.slumber_full_bed_value
+                  - sensor.slumber_internal_temperature
+                  - sensor.slumber_midpoint_estimate
+                  - sensor.slumber_pressure_voltage
+                  - sensor.slumber_reset_counter
+                  - sensor.slumber_wifi_signal_strength
+                  - sensor.a_c_smart_plug_device_temperature_3
+                  - sensor.a_c_smart_plug_voltage_3
+                  - sensor.a_c_smart_plug_total_power
+                  - sensor.a_c_smart_plug_summation_delivered_3
+                  - binary_sensor.a_c_smart_plug_binary_input_3
+                  - sensor.a_c_smart_plug_instantaneous_demand_3
+                  - sensor.a_c_smart_plug_power_3
+                  - binary_sensor.unnamed_ks240_cloud_connection
+                  - sensor.unnamed_ks240_signal_level
+                  - binary_sensor.br_ceiling_fan_overheated
+                  - sensor.br_speaker_1_power
+                  - sensor.br_speaker_1_energy
+                  - sensor.tp_link_power_strip_f2be_bed_sensor_smart_plug_current_consumption
+                  - sensor.tp_link_power_strip_f2be_bed_sensor_smart_plug_this_month_s_consumption
+                  - sensor.tp_link_power_strip_f2be_hannah_watch_smart_plug_current_consumption
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('data:image/jpeg;base64,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');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }
+              - alert_classes:
+                  - motion
+                  - occupancy
+                  - problem
+                cover_classes: []
+                sensor_classes:
+                  - temperature
+                  - humidity
+                  - light
+                toggle_domains:
+                  - light
+                  - switch
+                popup_domains:
+                  - light
+                  - climate
+                  - button
+                type: custom:area-card-plus
+                area: hallway
+                show_camera: false
+                columns: 4
+                mirrored: true
+                customization_domain: []
+                customization_alert: []
+                customization_cover: []
+                customization_sensor: []
+                layout: vertical
+                design: V1
+                extra_entities:
+                  - button.granary_smart_feeder_manual_feed
+                  - sensor.granary_smart_feeder_last_feed_time
+                  - sensor.front_door_sensor_battery
+                hide_unavailable: true
+                hidden_entities:
+                  - sensor.cat_feeder_1_last_feeding_size_3
+                  - sensor.cat_feeder_2_last_feeding_source
+                  - sensor.cat_feeder_2_portions_dispensed_today
+                  - sensor.cat_feeder_1_last_feeding_source_3
+                  - sensor.cat_feeder_2_last_feeding_size
+                  - sensor.cat_feeder_1_portions_dispensed_today_3
+                  - sensor.hall_light_1_energy
+                  - sensor.hall_light_4_light_energy
+                  - sensor.hall_light_5_light_energy
+                  - sensor.hall_light_1_power
+                  - sensor.hall_light_4_light_power
+                  - sensor.hall_light_5_light_power
+                  - number.hall_light_5_start_up_current_level
+                  - number.hall_light_1_start_up_current_level
+                  - number.hall_light_4_start_up_current_level
+                  - number.hall_light_3_start_up_current_level_5
+                  - number.front_door_light_start_up_current_level
+                  - number.hall_light_1_start_up_color_temperature
+                  - number.front_door_light_start_up_color_temperature
+                custom_buttons: []
+                sensor_color: white
+                excluded_entities:
+                  - sensor.front_door_sensor_device_temperature_3
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-image: url('https://www.worthingcourtblog.com/wp-content/uploads/2018/03/long-hallway-ideas-4.jpg');
+                      background-size: cover;
+                      background-position: center;
+                      height: 300px;
+                      color: white;
+                    }

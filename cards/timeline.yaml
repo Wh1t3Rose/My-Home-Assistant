@@ -1,0 +1,135 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#timeline"
+    name: Timeline
+    icon: mdi:chart-timeline
+    button_type: name
+    sub_button:
+      main: []
+      bottom: []
+  - layout: vertical
+    show_layout_toggle: true
+    max_events: 150
+    days_back: 7
+    time_format: 12h
+    show_header: true
+    filters:
+      categories: []
+      severities: []
+      sources: []
+      entities: []
+      search: ""
+    grouping:
+      enabled: true
+      window_seconds: 120
+      min_group_size: 2
+      group_by: entity
+    appearance:
+      card_height: 450px
+      compact: false
+      show_images: false
+      show_icons: true
+      show_severity_badge: true
+      show_source_badge: true
+      animate_new_events: true
+      severity_colors:
+        critical: "#D32F2F"
+        warning: "#FF9800"
+        info: "#2196F3"
+        debug: "#9E9E9E"
+    type: custom:chronicle-card
+    title: Home Timeline
+    sources:
+      - type: calendar
+        entity: calendar.home_events
+        name: Home Events
+        default_icon: mdi:calendar
+        default_color: "#4CAF50"
+        default_severity: info
+      - type: history
+        name: Door - Front
+        default_severity: warning
+        default_color: "#795548"
+        entity: binary_sensor.front_door_sensor_opening_3
+      - type: history
+        name: Door - Kenzie Room
+        default_severity: warning
+        default_color: "#795548"
+        entity: binary_sensor.kenzie_room_door_sensor_opening_4
+      - type: history
+        name: Door - Master Bath
+        default_severity: warning
+        default_color: "#795548"
+        entity: binary_sensor.master_bathroom_door_sensor_opening_5
+      - type: history
+        name: Door - Shower
+        default_severity: warning
+        default_color: "#795548"
+        entity: binary_sensor.shower_door_sensor_opening
+      - type: history
+        name: Motion - Kenzie
+        default_severity: info
+        default_color: "#9C27B0"
+        entity: binary_sensor.kenzie_motion_sensor_motion_2
+      - type: history
+        name: Motion - Kitchen
+        default_severity: info
+        default_color: "#9C27B0"
+        entity: binary_sensor.kitchen_motion_sensor
+      - type: history
+        name: Motion - Master Bath 1
+        default_severity: info
+        default_color: "#9C27B0"
+        entity: binary_sensor.master_bathroom_motion_binary_sensor
+      - type: history
+        name: Motion - Master Bath 2
+        default_severity: info
+        default_color: "#9C27B0"
+        entity: binary_sensor.master_bathroom_motion_sensor_motion
+      - type: history
+        name: Motion - Shower
+        default_severity: info
+        default_color: "#9C27B0"
+        entity: binary_sensor.shower_motion_sensor_motion_3
+      - type: history
+        name: Appliance - Freezer Door
+        default_severity: info
+        default_color: "#2196F3"
+        entity: binary_sensor.kitchen_freezer_door_sensor_opening
+      - type: history
+        name: Appliance - Range Door
+        default_severity: info
+        default_color: "#2196F3"
+        entity: binary_sensor.range_door
+      - type: history
+        name: Appliance - Washer Dryer Door
+        default_severity: info
+        default_color: "#2196F3"
+        entity: binary_sensor.washer_dryer_door_open
+      - type: history
+        name: Water Leak - HVAC
+        default_severity: critical
+        default_color: "#F44336"
+        entity: binary_sensor.hvac_water_leak_sensor_moisture_3
+      - type: history
+        name: Water Leak - Kitchen
+        default_severity: critical
+        default_color: "#F44336"
+        entity: binary_sensor.kitchen_water_leak_sensor_moisture
+      - type: history
+        name: Water Leak - Master Bath
+        default_severity: critical
+        default_color: "#F44336"
+        entity: binary_sensor.master_bath_water_leak_sensor_moisture_2
+      - type: history
+        name: Vibration - Kitchen 1
+        default_severity: info
+        default_color: "#FF9800"
+        entity: binary_sensor.kitchen_vibration_sensor_vibration_3
+      - type: history
+        name: Vibration - Kitchen 2
+        default_severity: info
+        default_color: "#FF9800"
+        entity: binary_sensor.kitchen_vibration_sensoir_vibration_2
