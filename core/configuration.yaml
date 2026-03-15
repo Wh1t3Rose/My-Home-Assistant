@@ -30,7 +30,7 @@ shopping_list:
 smartir:
 
 homeassistant:
-  external_url: https://p9iogi43wn9olzkpsloyfi82u6uftbg2.ui.nabu.casa
+  external_url: https://REDACTED.example
   allowlist_external_dirs:
     - /config/www/doorbell/
     - /config/
