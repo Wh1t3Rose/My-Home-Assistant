@@ -23,28 +23,40 @@ routes:
     tap_action:
       action: navigate
       navigation_path: "#remote"
-  - icon: mdi:cat
-    label: NAS
+  - icon: mdi:home
+    label: Home
     tap_action:
-      action: navigate
-      navigation_path: "#cat"
-  - icon: mdi:vacuum
-    label: ""
-    url: null
-    tap_action:
-      action: navigate
-      navigation_path: "#vac"
+      action: open-popup
+    popup:
+      - icon: mdi:cat
+        label: NAS
+        url: ""
+        tap_action:
+          action: navigate
+          navigation_path: "#cat"
+      - icon: mdi:vacuum
+        label: Vacuum
+        url: ""
+        tap_action:
+          action: navigate
+          navigation_path: "#vac"
+      - icon: mdi:chart-timeline
+        label: Timeline
+        url: ""
+        tap_action:
+          action: navigate
+          navigation_path: "#timeline"
+      - icon: mdi:lightning-bolt
+        label: PWR
+        url: ""
+        tap_action:
+          action: navigate
+          navigation_path: "#pwr"
   - icon: mdi:dots-horizontal
     label: Settings
     tap_action:
       action: open-popup
     popup:
-      - icon: mdi:chart-timeline
-        label: ""
-        url: ""
-        tap_action:
-          action: navigate
-          navigation_path: "#timeline"
       - icon: mdi:alert-circle-outline
         label: Batteries
         url: ""

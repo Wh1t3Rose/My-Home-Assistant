@@ -1,0 +1,264 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#pwr"
+    name: HVAC
+    icon: mdi:air-conditioner
+    button_type: name
+  - type: vertical-stack
+    cards:
+      - type: glance
+        title: Period Cost
+        show_state: true
+        show_name: true
+        entities:
+          - entity: sensor.total_energy_cost_daily
+            name: Daily
+          - entity: sensor.total_energy_cost_weekly
+            name: Weekly
+          - entity: sensor.total_energy_cost_monthly
+            name: Monthly
+
+      - type: glance
+        title: Device Cost (Month-to-Date)
+        show_state: true
+        show_name: true
+        entities:
+          - entity: sensor.home_lights_energy_cost_monthly
+            name: Lights
+          - entity: sensor.fridge_energy_cost_monthly
+            name: Fridge
+          - entity: sensor.microwave_energy_cost_monthly
+            name: Microwave
+          - entity: sensor.entertainment_center_energy_cost_monthly
+            name: Entertainment
+          - entity: sensor.washer_dryer_energy_cost_monthly
+            name: Laundry
+
+      - type: custom:swipe-card
+        start_card: 1
+        parameters:
+          spaceBetween: 12
+          grabCursor: true
+          pagination:
+            type: bullets
+        cards:
+          - type: custom:apexcharts-card
+            graph_span: 24h
+            span:
+              end: minute
+            apex_config:
+              chart:
+                height: 320
+              legend:
+                show: true
+                position: top
+              stroke:
+                width: 3
+                curve: smooth
+              yaxis:
+                - decimalsInFloat: 0
+                  title:
+                    text: Watts
+            header:
+              show: true
+              title: Live Power (24h)
+              show_states: true
+              colorize_states: true
+            series:
+              - entity: sensor.hvac_estimated_power
+                name: HVAC
+                color: '#3b82f6'
+                type: area
+                opacity: 0.25
+                group_by:
+                  duration: 5min
+                  func: avg
+              - entity: sensor.office_power_usage
+                name: Office UPS
+                color: '#10b981'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+
+          - type: custom:mini-graph-card
+            name: HVAC Energy Trend
+            entities:
+              - entity: sensor.hvac_energy
+                name: kWh
+                color: '#3b82f6'
+            hours_to_show: 72
+            points_per_hour: 1
+            line_width: 3
+            animate: true
+            show:
+              icon: true
+              name: true
+              state: true
+              labels: true
+              extrema: true
+              average: true
+
+          - type: custom:mini-graph-card
+            name: Office Energy Trend
+            entities:
+              - entity: sensor.ups_power_usage_energy
+                name: kWh
+                color: '#10b981'
+            hours_to_show: 72
+            points_per_hour: 1
+            line_width: 3
+            animate: true
+            show:
+              icon: true
+              name: true
+              state: true
+              labels: true
+              extrema: true
+              average: true
+
+          - type: custom:mini-graph-card
+            name: Energy Cost Trend
+            entities:
+              - entity: sensor.hvac_energy_cost
+                name: HVAC
+                color: '#f59e0b'
+              - entity: sensor.office_energy_cost
+                name: Office
+                color: '#14b8a6'
+              - entity: sensor.total_energy_cost
+                name: Total
+                color: '#ef4444'
+            hours_to_show: 72
+            points_per_hour: 1
+            line_width: 3
+            animate: true
+            show:
+              icon: true
+              name: true
+              state: true
+              labels: true
+              extrema: true
+              average: true
+
+          - type: custom:apexcharts-card
+            graph_span: 24h
+            span:
+              end: minute
+            apex_config:
+              chart:
+                height: 320
+              legend:
+                show: true
+                position: top
+              stroke:
+                width: 2
+                curve: smooth
+              yaxis:
+                - decimalsInFloat: 0
+                  title:
+                    text: Watts
+            header:
+              show: true
+              title: Home and Appliance Power (24h)
+              show_states: false
+            series:
+              - entity: sensor.all_lights_power_usage_power
+                name: Home Lights
+                color: '#fbbf24'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+              - entity: sensor.power_fridge_power
+                name: Fridge
+                color: '#3b82f6'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+              - entity: sensor.sonoff_1001f7fa91_power
+                name: Microwave
+                color: '#f97316'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+              - entity: sensor.sonoff_1001f642d8_power
+                name: Entertainment
+                color: '#a855f7'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+              - entity: sensor.sonoff_1001f7e2d9_power
+                name: Washer/Dryer
+                color: '#14b8a6'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+              - entity: sensor.google_router_smart_plug_power
+                name: Router
+                color: '#22c55e'
+                type: line
+                group_by:
+                  duration: 5min
+                  func: avg
+
+      - type: entities
+        title: Power Tracking
+        show_header_toggle: false
+        entities:
+          - entity: input_number.electricity_rate_per_kwh
+            name: Electricity Rate (USD/kWh)
+          - type: section
+            label: HVAC and Office
+          - entity: sensor.hvac_estimated_power
+            name: HVAC Power
+          - entity: sensor.hvac_energy
+            name: HVAC Energy Today
+          - entity: sensor.hvac_energy_cost
+            name: HVAC Cost (All-Time)
+          - entity: sensor.office_power_usage
+            name: Office Power (UPS)
+          - entity: sensor.ups_power_usage_energy
+            name: Office Energy (UPS)
+          - entity: sensor.office_energy_cost
+            name: Office Cost (All-Time)
+          - entity: sensor.total_energy_cost
+            name: Total Cost (All-Time)
+          - type: section
+            label: Home and Appliances
+          - entity: sensor.all_lights_power_usage_power
+            name: Home Lights Power
+          - entity: sensor.all_lights_power_usage_energy
+            name: Home Lights Energy
+          - entity: sensor.power_fridge_power
+            name: Fridge Power
+          - entity: sensor.power_fridge_energy
+            name: Fridge Energy
+          - entity: sensor.sonoff_1001f7fa91_power
+            name: Microwave Power
+          - entity: sensor.microwave_power_energy
+            name: Microwave Energy
+          - entity: sensor.sonoff_1001f642d8_power
+            name: Entertainment Center Power
+          - entity: sensor.entertainment_center_power_energy
+            name: Entertainment Center Energy
+          - entity: sensor.sonoff_1001f7e2d9_power
+            name: Washer/Dryer Power
+          - entity: sensor.washer_dryer_power_energy
+            name: Washer/Dryer Energy
+          - entity: sensor.google_router_smart_plug_power
+            name: Router Power
+
+      - type: history-graph
+        title: HVAC Action
+        entities:
+          - entity: sensor.thermostat_hvac_action
+            name: HVAC Action
+        hours_to_show: 24
+        refresh_interval: 60

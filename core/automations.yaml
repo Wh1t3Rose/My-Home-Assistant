@@ -1,19 +1,25 @@
 ﻿- id: '1676349729864'
-  alias: Cat Feeder Schedule (7g/serv | 168g/day)
+  alias: Cat Feeder Schedule (10g/serv | 360g/day)
   description: Dispenses IAMS Proactive Health Hairball Control Salmon dry food.
-    6 servings per feed, 4 feeds/day (24 servings total ~= 168g/day).
+    6 servings per feed, 6 feeds/day (36 servings total ~= 360g/day).
   triggers:
   - at: 06:00:00
-    id: 8AM
+    id: 6AM
+    trigger: time
+  - at: 09:00:00
+    id: 9AM
     trigger: time
   - at: '12:00:00'
-    id: 2PM
+    id: 12PM
+    trigger: time
+  - at: '15:00:00'
+    id: 3PM
     trigger: time
   - at: '18:00:00'
-    id: 5PM
+    id: 6PM
     trigger: time
   - at: '23:00:00'
-    id: 9PM
+    id: 11PM
     trigger: time
   conditions: []
   actions:
@@ -21,7 +27,7 @@
     choose:
     - conditions:
       - condition: trigger
-        id: 8AM
+        id: 6AM
       sequence:
       - repeat:
           count: 6
@@ -33,7 +39,7 @@
               seconds: 2
     - conditions:
       - condition: trigger
-        id: 2PM
+        id: 9AM
       sequence:
       - repeat:
           count: 6
@@ -45,7 +51,7 @@
               seconds: 2
     - conditions:
       - condition: trigger
-        id: 5PM
+        id: 12PM
       sequence:
       - repeat:
           count: 6
@@ -57,7 +63,7 @@
               seconds: 2
     - conditions:
       - condition: trigger
-        id: 9PM
+        id: 3PM
       sequence:
       - repeat:
           count: 6
@@ -67,6 +73,351 @@
             action: button.press
           - delay:
               seconds: 2
+    - conditions:
+      - condition: trigger
+        id: 6PM
+      sequence:
+      - repeat:
+          count: 6
+          sequence:
+          - target:
+              entity_id: button.granary_smart_feeder_manual_feed
+            action: button.press
+          - delay:
+              seconds: 2
+    - conditions:
+      - condition: trigger
+        id: 11PM
+      sequence:
+      - repeat:
+          count: 6
+          sequence:
+          - target:
+              entity_id: button.granary_smart_feeder_manual_feed
+            action: button.press
+          - delay:
+              seconds: 2
+  mode: single
+- id: '1773373200000'
+  alias: Kenzie Bed Sensor Sunday Night - Turn Off Hannah Reading Light
+  description: On Sunday nights after 8 PM, wait 30 seconds after Kenzie bed sensor
+    turns on, then turn off Hannah reading light.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.kenzie_bed_sensor_mat_mat_sensor
+    to: 'on'
+  conditions:
+  - condition: time
+    after: '20:00:00'
+    weekday:
+    - sun
+  actions:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - action: light.turn_off
+    target:
+      entity_id: light.hannah_reading_light_light_4
+    data: {}
+  mode: single
+- id: '1773374300000'
+  alias: Night Office Presence - Kenzie Bedtime House Lights
+  description: If Hannah is away and Kenzie is in bed after 8 PM, office motion turns
+    off living room TV/light and reading light, and sets Tyler office light to 25%.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.office_motion_sensor
+    to:
+    - 'on'
+    - detected
+    - Detected
+  conditions:
+  - condition: time
+    after: '20:00:00'
+  - condition: state
+    entity_id: person.hannah
+    state: not_home
+  - condition: template
+    value_template: '{{
+      is_state(''binary_sensor.kenzie_bed_sensor_mat_mat_sensor'', ''on'')
+      or (
+        is_state(''binary_sensor.kenzie_bed_sensor_mat_mat_sensor'', ''off'')
+        and (as_timestamp(now()) - as_timestamp(states.binary_sensor.kenzie_bed_sensor_mat_mat_sensor.last_changed)) < 300
+      )
+      }}'
+  actions:
+  - action: media_player.turn_off
+    target:
+      entity_id: media_player.living_room_tv_2
+    data: {}
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.living_room_light_fan
+      - light.hannah_reading_light_light_4
+    data:
+      transition: 2
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - action: light.turn_on
+    target:
+      entity_id: light.tyler_s_office_light_light
+    data:
+      brightness_pct: 25
+      transition: 1
+  mode: single
+- id: '1773375400000'
+  alias: Hannah Bed Sensor - Bedroom Lamp Adjustments
+  description: When Hannah bed sensor turns on and Tyler bedroom lamp is on, fade Tyler
+    lamp off and dim Hannah bedroom light to 20%.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.slumber_bed_sensor
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  conditions:
+  - condition: state
+    entity_id: light.tyler_s_bedroom_lamp
+    state: 'on'
+  actions:
+  - action: light.turn_off
+    target:
+      entity_id: light.tyler_s_bedroom_lamp
+    data:
+      transition: 3
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.hannah_bedroom_lamp_bulb
+        state: 'on'
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.hannah_bedroom_lamp_bulb
+        data:
+          brightness_pct: 20
+          transition: 4
+  mode: single
+- id: '1773376600000'
+  alias: Office Motion - Turn Off Kitchen (Hannah Away or In Bed)
+  description: Turn off kitchen lights when office motion is detected and Hannah is
+    not home or in bed.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.office_motion_sensor
+    to:
+    - 'on'
+    - detected
+    - Detected
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.hannah
+      state: not_home
+    - condition: state
+      entity_id: binary_sensor.slumber_bed_sensor
+      state: 'on'
+  actions:
+  - action: light.turn_off
+    target:
+      entity_id: light.group_kitchen_lights
+    data:
+      transition: 2
+  mode: restart
+- id: '1773377700000'
+  alias: Night Wind-Down - Both In Bed
+  description: Wind down the house when Hannah and Kenzie are in bed; dim lights,
+    lower thermostat, and send door-check reminder.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.slumber_bed_sensor
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    id: HannahInBed
+  - trigger: state
+    entity_id:
+    - binary_sensor.kenzie_bed_sensor_mat_mat_sensor
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    id: KenzieInBed
+  conditions:
+  - condition: time
+    after: '20:30:00'
+  - condition: state
+    entity_id: binary_sensor.slumber_bed_sensor
+    state: 'on'
+  - condition: template
+    value_template: '{{
+      is_state(''binary_sensor.kenzie_bed_sensor_mat_mat_sensor'', ''on'')
+      or (
+        is_state(''binary_sensor.kenzie_bed_sensor_mat_mat_sensor'', ''off'')
+        and (as_timestamp(now()) - as_timestamp(states.binary_sensor.kenzie_bed_sensor_mat_mat_sensor.last_changed)) < 300
+      )
+      }}'
+  actions:
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.living_room_light_fan
+      - light.group_kitchen_lights
+      - light.hall_light_group
+    data:
+      transition: 30
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.home_thermostat
+    data:
+      temperature: 68
+  - action: input_select.select_option
+    target:
+      entity_id: input_select.home_mode
+    data:
+      option: Sleep
+  - action: notify.mobile_app_tyler_phone
+    data:
+      title: Wind-Down Enabled
+      message: House wind-down applied. Please confirm doors are locked.
+      data:
+        tag: bedtime_winddown
+  - action: notify.mobile_app_hannah_iphone
+    data:
+      title: Wind-Down Enabled
+      message: House wind-down applied. Please confirm doors are locked.
+      data:
+        tag: bedtime_winddown
+  mode: single
+- id: '1773377800000'
+  alias: Night Path Lighting - Hall and Bath
+  description: Soft overnight pathway lighting for hall only based on hallway motion.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.hallway_motion_sensor_1_occupancy
+    to: 'on'
+    id: HallMotionOn
+  - trigger: state
+    entity_id:
+    - binary_sensor.hallway_motion_sensor_1_occupancy
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 30
+    id: HallMotionOff
+  conditions:
+  - condition: time
+    after: '22:00:00'
+    before: 07:00:00
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - HallMotionOn
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.hall_light_group
+        data:
+          brightness_pct: 6
+          color_temp_kelvin: 2400
+          transition: 1
+    - conditions:
+      - condition: trigger
+        id:
+        - HallMotionOff
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.hall_light_group
+        data:
+          transition: 2
+  mode: restart
+- id: '1773378900000'
+  alias: Weekday 8:30 - Tyler Unplug Fallback Sunrise
+  description: If Tyler phone is still plugged in at 8:30 AM on weekdays, ramp bedroom
+    lamp like sunrise over 20 minutes.
+  triggers:
+  - trigger: time
+    at: 08:30:00
+  conditions:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  - condition: template
+    value_template: "{{\n  states('sensor.tyler_phone_battery_state_4') | lower == 'charging'\n  or states('binary_sensor.tyler_phone_battery_state_4') | lower in ['on', 'plugged', 'charging']\n}}"
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.tyler_s_bedroom_lamp
+    data:
+      brightness_pct: 5
+      color_temp_kelvin: 2200
+      transition: 1
+  - action: light.turn_on
+    target:
+      entity_id: light.tyler_s_bedroom_lamp
+    data:
+      brightness_pct: 90
+      color_temp_kelvin: 4000
+      transition: 1200
+  mode: single
+- id: '1773379000000'
+  alias: Office Idle Late - Charge Phone Reminder
+  description: If no office occupancy for 10 minutes after 11 PM and Tyler phone
+    is not charging, send high-priority charge reminder.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.office_motion_sensor_occupancy
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  conditions:
+  - condition: time
+    after: '23:00:00'
+  - condition: template
+    value_template: "{{\n  states('sensor.tyler_phone_battery_state_4') | lower not in ['charging', 'full']\n  and states('binary_sensor.tyler_phone_battery_state_4') | lower not in ['on', 'charging', 'plugged']\n}}"
+  actions:
+  - action: notify.mobile_app_tyler_phone
+    data:
+      title: Charge Phone Reminder
+      message: Office has been idle 10+ minutes. Plug in your phone.
+      data:
+        tag: tyler_charge_phone_late
+        ttl: 0
+        priority: high
+        importance: high
+        sticky: true
+        persistent: true
+        channel: alarm_stream
   mode: single
 - id: '1677703884093'
   alias: Bath Fan Exhaust AIO
@@ -1230,12 +1581,17 @@
   mode: single
 - id: '1715753103501'
   alias: Kitchen Light Remote - Motion + Button Control
-  description: Use kitchen occupancy to control lights overnight between 12 AM and
-    6 AM, turning them off after 2 minutes of vacancy
+  description: Turn on kitchen lights on motion/occupancy with lux-based brightness.
+    Use 100% when bright (>= 50 lux), 30% when dim, and 75% during 10p-6a if Kenzie
+    has been out of bed for 3+ minutes. Auto-off after 2 minutes of vacancy.
   triggers:
   - entity_id: binary_sensor.kitchen_motion_sensor_occupancy
     to: 'on'
     id: KitchenOccupied
+    trigger: state
+  - entity_id: binary_sensor.kitchen_motion_sensor
+    to: 'on'
+    id: KitchenMotionDetected
     trigger: state
   - entity_id: binary_sensor.kitchen_motion_sensor_occupancy
     to: 'off'
@@ -1253,19 +1609,46 @@
   actions:
   - choose:
     - conditions:
-      - condition: time
-        after: 00:00:00
-        before: 06:00:00
       - condition: trigger
         id:
         - KitchenOccupied
+        - KitchenMotionDetected
       - condition: state
         entity_id: light.group_kitchen_lights
         state: 'off'
       sequence:
-      - target:
-          entity_id: light.group_kitchen_lights
-        action: light.turn_on
+      - choose:
+        - conditions:
+          - condition: numeric_state
+            entity_id: sensor.kitchen_motion_sensor_illuminance
+            above: 49
+          sequence:
+          - target:
+              entity_id: light.group_kitchen_lights
+            action: light.turn_on
+            data:
+              brightness_pct: 100
+              transition: 1
+        - conditions:
+          - condition: time
+            after: '22:00:00'
+            before: '06:00:00'
+          - condition: template
+            value_template: "{{ is_state('binary_sensor.kenzie_bed_sensor_mat_mat_sensor', 'off') and (as_timestamp(now()) - as_timestamp(states.binary_sensor.kenzie_bed_sensor_mat_mat_sensor.last_changed)) > 180 }}"
+          sequence:
+          - target:
+              entity_id: light.group_kitchen_lights
+            action: light.turn_on
+            data:
+              brightness_pct: 75
+              transition: 1
+        default:
+        - target:
+            entity_id: light.group_kitchen_lights
+          action: light.turn_on
+          data:
+            brightness_pct: 30
+            transition: 1
     - conditions:
       - condition: trigger
         id:
@@ -1281,9 +1664,24 @@
     - condition: trigger
       id:
       - TurnOnButton
-    - target:
-        entity_id: light.group_kitchen_lights
-      action: light.toggle
+    - choose:
+      - conditions:
+        - condition: time
+          after: '22:00:00'
+          before: '06:00:00'
+        - condition: template
+          value_template: "{{ is_state('binary_sensor.kenzie_bed_sensor_mat_mat_sensor', 'off') and (as_timestamp(now()) - as_timestamp(states.binary_sensor.kenzie_bed_sensor_mat_mat_sensor.last_changed)) > 180 }}"
+        sequence:
+        - target:
+            entity_id: light.group_kitchen_lights
+          action: light.turn_on
+          data:
+            brightness_pct: 75
+            transition: 1
+      default:
+      - target:
+          entity_id: light.group_kitchen_lights
+        action: light.toggle
   mode: single
 - id: '1716823178543'
   alias: Cat Litter-Robot Status Codes
@@ -2526,26 +2924,62 @@
           - condition: template
             value_template: '{{ not quiet_hours }}'
           sequence:
-          - action: notify.mobile_app_tyler_phone
-            data:
-              title: 'CRITICAL: Litterbox has no litter'
-              message: Litter level is {{ litter_level | round(1) }}%. Refill immediately.
-          - action: notify.mobile_app_hannah_iphone
-            data:
-              title: 'CRITICAL: Litterbox has no litter'
-              message: Litter level is {{ litter_level | round(1) }}%. Refill immediately.
+          - choose:
+            - conditions:
+              - condition: state
+                entity_id: person.tyler
+                state: home
+              sequence:
+              - action: notify.mobile_app_tyler_phone
+                data:
+                  title: 'CRITICAL: Litterbox has no litter'
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill immediately.
+                  data:
+                    tag: litter_level_empty
+            - conditions:
+              - condition: state
+                entity_id: person.hannah
+                state: home
+              sequence:
+              - action: notify.mobile_app_hannah_iphone
+                data:
+                  title: 'CRITICAL: Litterbox has no litter'
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill immediately.
+                  data:
+                    tag: litter_level_empty
           - action: notify.mobile_app_pixel_tablet
             data:
               title: 'CRITICAL: Litterbox has no litter'
               message: Litter level is {{ litter_level | round(1) }}%. Refill immediately.
+              data:
+                tag: litter_level_empty
         - conditions:
           - condition: template
             value_template: '{{ quiet_hours and trigger.id == ''litter_empty_initial'' }}'
           sequence:
-          - action: notify.mobile_app_tyler_phone
-            data:
-              title: 'CRITICAL: Litterbox has no litter (quiet hours)'
-              message: Litter level is {{ litter_level | round(1) }}%. Refill as soon as possible.
+          - choose:
+            - conditions:
+              - condition: state
+                entity_id: person.tyler
+                state: home
+              sequence:
+              - action: notify.mobile_app_tyler_phone
+                data:
+                  title: 'CRITICAL: Litterbox has no litter (quiet hours)'
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill as soon as possible.
+                  data:
+                    tag: litter_level_empty
+            - conditions:
+              - condition: state
+                entity_id: person.hannah
+                state: home
+              sequence:
+              - action: notify.mobile_app_hannah_iphone
+                data:
+                  title: 'CRITICAL: Litterbox has no litter (quiet hours)'
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill as soon as possible.
+                  data:
+                    tag: litter_level_empty
   - choose:
     - conditions:
       - condition: or
@@ -2566,26 +3000,62 @@
           - condition: template
             value_template: '{{ not quiet_hours }}'
           sequence:
-          - action: notify.mobile_app_tyler_phone
-            data:
-              title: Litterbox low (aggressive alert)
-              message: Litter level is {{ litter_level | round(1) }}%. Refill soon.
-          - action: notify.mobile_app_hannah_iphone
-            data:
-              title: Litterbox low (aggressive alert)
-              message: Litter level is {{ litter_level | round(1) }}%. Fill to ensure proper clumping.
+          - choose:
+            - conditions:
+              - condition: state
+                entity_id: person.tyler
+                state: home
+              sequence:
+              - action: notify.mobile_app_tyler_phone
+                data:
+                  title: Litterbox low (aggressive alert)
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill soon.
+                  data:
+                    tag: litter_level_low
+            - conditions:
+              - condition: state
+                entity_id: person.hannah
+                state: home
+              sequence:
+              - action: notify.mobile_app_hannah_iphone
+                data:
+                  title: Litterbox low (aggressive alert)
+                  message: Litter level is {{ litter_level | round(1) }}%. Fill to ensure proper clumping.
+                  data:
+                    tag: litter_level_low
           - action: notify.mobile_app_pixel_tablet
             data:
               title: Litterbox low (aggressive alert)
               message: Litter level is {{ litter_level | round(1) }}%. Refill soon.
+              data:
+                tag: litter_level_low
         - conditions:
           - condition: template
             value_template: '{{ quiet_hours and trigger.id == ''litter_low_initial'' }}'
           sequence:
-          - action: notify.mobile_app_tyler_phone
-            data:
-              title: Litterbox low (quiet hours)
-              message: Litter level is {{ litter_level | round(1) }}%. Refill when possible.
+          - choose:
+            - conditions:
+              - condition: state
+                entity_id: person.tyler
+                state: home
+              sequence:
+              - action: notify.mobile_app_tyler_phone
+                data:
+                  title: Litterbox low (quiet hours)
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill when possible.
+                  data:
+                    tag: litter_level_low
+            - conditions:
+              - condition: state
+                entity_id: person.hannah
+                state: home
+              sequence:
+              - action: notify.mobile_app_hannah_iphone
+                data:
+                  title: Litterbox low (quiet hours)
+                  message: Litter level is {{ litter_level | round(1) }}%. Refill when possible.
+                  data:
+                    tag: litter_level_low
   - choose:
     - conditions:
       - condition: trigger
@@ -2597,8 +3067,53 @@
           notification_id: litter_level_critical
       - action: notify.mobile_app_tyler_phone
         data:
-          title: Litterbox level recovered
-          message: Litter level is back above 24%.
+          message: clear_notification
+          data:
+            tag: litter_level_low
+      - action: notify.mobile_app_tyler_phone
+        data:
+          message: clear_notification
+          data:
+            tag: litter_level_empty
+      - action: notify.mobile_app_hannah_iphone
+        data:
+          message: clear_notification
+          data:
+            tag: litter_level_low
+      - action: notify.mobile_app_hannah_iphone
+        data:
+          message: clear_notification
+          data:
+            tag: litter_level_empty
+      - action: notify.mobile_app_pixel_tablet
+        data:
+          message: clear_notification
+          data:
+            tag: litter_level_low
+      - action: notify.mobile_app_pixel_tablet
+        data:
+          message: clear_notification
+          data:
+            tag: litter_level_empty
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: person.tyler
+            state: home
+          sequence:
+          - action: notify.mobile_app_tyler_phone
+            data:
+              title: Litterbox level recovered
+              message: Litter level is {{ litter_level | round(1) }}%.
+        - conditions:
+          - condition: state
+            entity_id: person.hannah
+            state: home
+          sequence:
+          - action: notify.mobile_app_hannah_iphone
+            data:
+              title: Litterbox level recovered
+              message: Litter level is {{ litter_level | round(1) }}%.
   mode: single
 - id: '1719020482410'
   alias: Hannah Button -Short Press - Toggle Lamp
@@ -2687,8 +3202,8 @@
         id:
         - MotionDetect
       - condition: time
-        after: '21:00:00'
-        before: 06:00:00
+        after: '20:00:00'
+        before: 08:00:00
       sequence:
       - metadata: {}
         data:
@@ -4464,31 +4979,41 @@
   mode: single
 - id: '1731552898391'
   alias: Notification - Bedtime Reminder
-  description: Notify Pixel when alarm is 8.5, 8, or 7.5 hours away
+  description: Remind Tyler based on next alarm so bedtime supports 7.5 hours asleep
+    plus ~15 minutes to fall asleep.
   triggers:
   - entity_id:
-    - sensor.pixel_8_ha_app_next_alarm
-    below: 9
-    id: '8.5'
+    - sensor.tyler_phone_next_alarm_4
+    below: 8.25
+    id: '8.25'
     trigger: numeric_state
-  - entity_id: sensor.pixel_8_ha_app_next_alarm
+  - entity_id: sensor.tyler_phone_next_alarm_4
     below: 8
     id: '8'
     trigger: numeric_state
-  - entity_id: sensor.pixel_8_ha_app_next_alarm
-    below: 7.5
-    id: '7.5'
+  - entity_id: sensor.tyler_phone_next_alarm_4
+    below: 7.75
+    id: '7.75'
     trigger: numeric_state
-  conditions: []
+  conditions:
+  - condition: template
+    value_template: "{{\n  is_state('sensor.tylerworkpc_sessionstate', 'Unlocked')\n  or is_state('media_player.living_room_tv_2', 'playing')\n  or states('binary_sensor.office_motion_sensor_occupancy') | lower in ['on', 'detected']\n  or states('binary_sensor.office_motion_sensor') | lower in ['on', 'detected']\n}}"
   actions:
+  - variables:
+      pc_unlocked: "{{ is_state('sensor.tylerworkpc_sessionstate', 'Unlocked') }}"
+      tv_playing: "{{ is_state('media_player.living_room_tv_2', 'playing') }}"
+      office_detected: "{{ states('binary_sensor.office_motion_sensor_occupancy') | lower in ['on', 'detected'] or states('binary_sensor.office_motion_sensor') | lower in ['on', 'detected'] }}"
+      active_reasons: "{{ [\n  'WorkPC unlocked' if pc_unlocked else none,\n  'Living Room TV playing' if tv_playing else none,\n  'Office occupancy detected' if office_detected else none\n] | reject('equalto', none) | list | join(', ') }}"
   - choose:
     - conditions:
       - condition: trigger
-        id: '8.5'
+        id: '8.25'
       sequence:
       - data:
-          title: Bedtime soon!
-          message: Wake up in 8.5 hours
+          title: Bedtime Soon
+          message: "Bed in 30 min to protect 7.5h sleep. Active: {{ active_reasons }}."
+          data:
+            tag: bedtime_progressive
         action: notify.mobile_app_tyler_phone
     - conditions:
       - condition: trigger
@@ -4496,16 +5021,136 @@
       sequence:
       - data:
           title: Bedtime Reminder
-          message: Wake up in 8 hours
+          message: "Bed in 15 min to protect 7.5h sleep. Active: {{ active_reasons }}."
+          data:
+            tag: bedtime_progressive
         action: notify.mobile_app_tyler_phone
     - conditions:
       - condition: trigger
-        id: '7.5'
+        id: '7.75'
       sequence:
       - data:
-          title: Bedtime now!
-          message: Wake up in 7.5 hours
+          title: In Bed Now
+          message: "Get in bed now to still get ~7.5h sleep. Active: {{ active_reasons }}."
+          data:
+            tag: bedtime_hard_stop
+            ttl: 0
+            priority: high
+            importance: high
+            sticky: true
+            persistent: true
         action: notify.mobile_app_tyler_phone
+  mode: single
+- id: '1773380200000'
+  alias: Notification - Bedtime Reminder (Late Activity)
+  description: Remind Tyler to get in bed if WorkPC is unlocked, living room TV is
+    playing, or office occupancy is detected; start earlier on Wednesday nights
+    before Thursday office mornings.
+  triggers:
+  - trigger: time
+    at: '23:15:00'
+    id: T1115
+  - trigger: time
+    at: '23:30:00'
+    id: T1130
+  - trigger: time
+    at: '23:45:00'
+    id: T1145
+  - trigger: time
+    at: '00:00:00'
+    id: T0000
+  - trigger: time
+    at: '00:15:00'
+    id: T0015
+  - trigger: time
+    at: '00:30:00'
+    id: T0030
+  conditions:
+  - condition: template
+    value_template: "{{ states('sensor.tyler_phone_next_alarm_4') in ['unknown', 'unavailable', 'none', ''] }}"
+  - condition: template
+    value_template: "{{\n  is_state('sensor.tylerworkpc_sessionstate', 'Unlocked')\n  or is_state('media_player.living_room_tv_2', 'playing')\n  or states('binary_sensor.office_motion_sensor_occupancy') | lower in ['on', 'detected']\n  or states('binary_sensor.office_motion_sensor') | lower in ['on', 'detected']\n}}"
+  actions:
+  - variables:
+      pc_unlocked: "{{ is_state('sensor.tylerworkpc_sessionstate', 'Unlocked') }}"
+      tv_playing: "{{ is_state('media_player.living_room_tv_2', 'playing') }}"
+      office_detected: "{{ states('binary_sensor.office_motion_sensor_occupancy') | lower in ['on', 'detected'] or states('binary_sensor.office_motion_sensor') | lower in ['on', 'detected'] }}"
+      office_night_wed: "{{ now().weekday() == 2 or (now().weekday() == 3 and now().hour == 0) }}"
+      active_reasons: "{{ [\n  'WorkPC unlocked' if pc_unlocked else none,\n  'Living Room TV playing' if tv_playing else none,\n  'Office occupancy detected' if office_detected else none\n] | reject('equalto', none) | list | join(', ') }}"
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: trigger
+          id:
+          - T0030
+        - condition: and
+          conditions:
+          - condition: template
+            value_template: "{{ office_night_wed }}"
+          - condition: trigger
+            id:
+            - T0015
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: "{{ 'Bed now (office morning)' if office_night_wed else 'Bed now (12:30 AM)' }}"
+          message: "{{\n  'You are up early Thursday. Get in bed now. Active: ' ~ active_reasons ~ '.'\n  if office_night_wed\n  else \"It's 12:30 AM. Get in bed now. Active: \" ~ active_reasons ~ '.'\n}}"
+          data:
+            tag: bedtime_hard_stop
+            ttl: 0
+            priority: high
+            importance: high
+            sticky: true
+            persistent: true
+    - conditions:
+      - condition: template
+        value_template: "{{ office_night_wed }}"
+      - condition: trigger
+        id:
+        - T1115
+        - T1130
+        - T1145
+        - T0000
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Bedtime Reminder (Office Morning)
+          message: "You need to be up by 7:15 AM Thursday. Start winding down now. Active: {{ active_reasons }}."
+          data:
+            tag: bedtime_progressive
+    - conditions:
+      - condition: template
+        value_template: "{{ not office_night_wed }}"
+      - condition: trigger
+        id:
+        - T1145
+        - T0000
+        - T0015
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Bedtime Reminder
+          message: "Get in bed by 12:30 AM. Active: {{ active_reasons }}."
+          data:
+            tag: bedtime_progressive
+  mode: single
+- id: '1731733579220'
+  alias: Reminder - Blog Post About Bedtime Automation
+  description: One-time reminder to write a blog post about the bedtime automation.
+  triggers:
+  - trigger: time
+    at: 3:00:00
+  conditions:
+  - condition: template
+    value_template: "{{ now().strftime('%Y-%m-%d') == '2026-03-16' }}"
+  actions:
+  - action: notify.mobile_app_tyler_phone
+    data:
+      title: Blog Post Reminder
+      message: Write a blog post today about your bedtime automation flow and tuning.
+      data:
+        tag: blog_post_bedtime_automation
   mode: single
 - id: '1731733579220'
   alias: Reset Home Temp 66F /15m
@@ -4899,6 +5544,18 @@
     - conditions:
       - condition: trigger
         id:
+        - DoorClosed
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data:
+          transition: 1
+        target:
+          entity_id: light.kenzie_floor_lamp
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
         - NoMotion10
       - condition: state
         entity_id: binary_sensor.kenzie_room_door_sensor_opening_4
@@ -4912,7 +5569,9 @@
         data:
           transition: 2
         target:
-          entity_id: light.kenzie_room_lights
+          entity_id:
+          - light.kenzie_room_lights
+          - light.kenzie_floor_lamp
     - conditions:
       - condition: trigger
         id:
@@ -4929,7 +5588,9 @@
         data:
           transition: 2
         target:
-          entity_id: light.kenzie_room_lights
+          entity_id:
+          - light.kenzie_room_lights
+          - light.kenzie_floor_lamp
     - conditions:
       - condition: trigger
         id:
@@ -4997,7 +5658,9 @@
           data:
             transition: 2
           target:
-            entity_id: light.kenzie_room_lights
+            entity_id:
+            - light.kenzie_room_lights
+            - light.kenzie_floor_lamp
         - action: notify.mobile_app_tyler_phone
           data:
             message: clear_notification
@@ -5014,25 +5677,69 @@
         id:
         - DoorOpen
       - condition: time
-        after: '20:15:00'
-        before: 06:00:00
+        after: '20:00:00'
+        before: 08:00:00
       sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.kenzie_floor_lamp_gradienttoggle
+        data: {}
       - action: light.turn_on
         metadata: {}
         data:
-          brightness_pct: 5
+          brightness_pct: 1
+          color_temp_kelvin: 2700
+          transition: 1
         target:
-          entity_id: light.kenzie_room_lights
+          entity_id: light.kenzie_floor_lamp
     - conditions:
       - condition: trigger
         id:
         - DoorOpen
+      - condition: time
+        after: 08:00:00
+        before: '11:00:00'
       sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.kenzie_floor_lamp_gradienttoggle
+        data: {}
       - action: light.turn_on
         metadata: {}
-        data: {}
+        data:
+          brightness_pct: 25
+          color_temp_kelvin: 3000
+          transition: 1
         target:
-          entity_id: light.kenzie_room_lights
+          entity_id: light.kenzie_floor_lamp
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 65
+          color_temp_kelvin: 4000
+          transition: 120
+        target:
+          entity_id: light.kenzie_floor_lamp
+    - conditions:
+      - condition: trigger
+        id:
+        - DoorOpen
+      - condition: time
+        after: '11:00:00'
+        before: '20:00:00'
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.kenzie_floor_lamp_gradienttoggle
+        data: {}
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 65
+          color_temp_kelvin: 4000
+          transition: 1
+        target:
+          entity_id: light.kenzie_floor_lamp
     - conditions:
       - condition: trigger
         id:
@@ -5043,7 +5750,7 @@
         data: {}
         target:
           entity_id: light.kenzie_room_lights
-  mode: single
+  mode: restart
 - id: '1732562778690'
   alias: 'Home - Turn on Lights when open front door '
   description: ''
@@ -7251,39 +7958,35 @@
       device_id: 3b0ed80029e18527dbfc52595765bf79
   mode: single
 - id: '1759068394249'
-  alias: Master Bathroom - Turn off Fan/Light | 45 min
+  alias: Master Bathroom - Turn off Lights | 30 min (No Shower Occupancy)
   description: ''
   triggers:
-  - trigger: time_pattern
-    minutes: '45'
-    enabled: false
-  conditions:
-  - type: is_open
-    condition: device
-    device_id: c934acde3508245b851bf77803d8368b
-    entity_id: b2111ba38030eefa25ed5a53dc1c5ce1
-    domain: binary_sensor
-  - type: is_not_open
-    condition: device
-    device_id: b753b0506e1dba99b1fabaa79a2710d1
-    entity_id: b9b4e45b7cef4b3537e68e1de1ecb331
-    domain: binary_sensor
+  - trigger: state
+    entity_id:
+    - light.master_bath_lights_group
+    to: 'on'
     for:
       hours: 0
-      minutes: 15
+      minutes: 30
       seconds: 0
-  actions:
-  - action: script.new_script_2
-    metadata: {}
-    data: {}
-  - delay:
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.hannah_motion_sensor_occupancy
+    state: 'off'
+    for:
       hours: 0
       minutes: 0
-      seconds: 30
-      milliseconds: 0
-  - action: script.bath_fan_light_off
+      seconds: 0
+  actions:
+  - action: light.turn_off
     metadata: {}
-    data: {}
+    data:
+      transition: 2
+    target:
+      entity_id:
+      - light.master_bath_lights_group
+      - light.master_bathroom_light_group
+      - light.group_master_bathroom_light
   mode: single
 - id: '1759068713186'
   alias: Kenzie Room - Lights off after 30 minutes
@@ -7917,6 +8620,13 @@
       transition: 5
     target:
       device_id: fce1e9a121deb09ebe40dacfe68251c1
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 2
+      transition: 5
+    target:
+      entity_id: light.tyler_s_bedroom_lamp
   mode: single
 - id: '1760828121901'
   alias: Notify - Front Door Open
@@ -9658,27 +10368,6 @@
             persistent: true
   mode: queued
   max: 20
-- id: '1773113885056'
-  alias: Cat Fountain Real-Time Notifications
-  description: Notify when cat drinks water
-  triggers:
-  - entity_id: sensor.dockstream_2_smart_fountain_remaining_water_2
-    trigger: state
-  conditions:
-  - condition: template
-    value_template: '{{ trigger.from_state.state | float > trigger.to_state.state
-      | float }}
-
-      '
-  actions:
-  - data:
-      title: Cat Fountain Update
-      message: 'Cat drank {{ (trigger.from_state.state | float - trigger.to_state.state
-        | float) | round(2) }} oz. Remaining water: {{ trigger.to_state.state }}%
-
-        '
-    action: notify.mobile_app_tyler_phone
-  mode: single
 - &id001
   id: '1773113997822'
   alias: Cat Fountain Daily Summary
@@ -9854,4 +10543,137 @@
       - f3ad0053df8a9c29e54f0c37770099ef
       - 5abb8d20795d4ecae1bfb6874c824ee4
     data: {}
+  mode: single
+- id: '1773372200000'
+  alias: Calendar - Family Event Reminder
+  description: Send one reminder 1 hour before and replace it at 10 minutes before
+    the same calendar.family event.
+  triggers:
+  - trigger: calendar
+    entity_id: calendar.family
+    event: start
+    offset: "-01:00:00"
+    id: one_hour_family
+  - trigger: calendar
+    entity_id: calendar.ktcox92_gmail_com
+    event: start
+    offset: "-01:00:00"
+    id: one_hour_google
+  - trigger: calendar
+    entity_id: calendar.family
+    event: start
+    offset: "-00:10:00"
+    id: ten_min_family
+  - trigger: calendar
+    entity_id: calendar.ktcox92_gmail_com
+    event: start
+    offset: "-00:10:00"
+    id: ten_min_google
+  - trigger: template
+    value_template: "{{\n  state_attr('calendar.ktcox92_gmail_com', 'start_time') not in [none, '', 'unknown', 'unavailable']\n  and (as_timestamp(as_datetime(state_attr('calendar.ktcox92_gmail_com', 'start_time'))) - as_timestamp(now())) <= 3600\n  and (as_timestamp(as_datetime(state_attr('calendar.ktcox92_gmail_com', 'start_time'))) - as_timestamp(now())) > 3540\n}}"
+    id: one_hour_fallback
+  - trigger: template
+    value_template: "{{\n  state_attr('calendar.ktcox92_gmail_com', 'start_time') not in [none, '', 'unknown', 'unavailable']\n  and (as_timestamp(as_datetime(state_attr('calendar.ktcox92_gmail_com', 'start_time'))) - as_timestamp(now())) <= 600\n  and (as_timestamp(as_datetime(state_attr('calendar.ktcox92_gmail_com', 'start_time'))) - as_timestamp(now())) > 540\n}}"
+    id: ten_min_fallback
+  conditions: []
+  actions:
+  - variables:
+      event_title: '{{ trigger.calendar_event.summary | default(state_attr(''calendar.ktcox92_gmail_com'',
+        ''message'') | default(''Family Event'', true), true) }}'
+      event_start_raw: '{{ trigger.calendar_event.start | default(state_attr(''calendar.ktcox92_gmail_com'',
+        ''start_time''), true) }}'
+      event_start: '{{ as_datetime(event_start_raw, none) }}'
+      event_time: '{% set ts = as_timestamp(event_start_raw, none) %}{{ ts | timestamp_custom(''%-I:%M
+        %p'') if ts is not none else ''soon'' }}'
+      event_tag: calendar_family_event
+      quiet_hours: '{{ now().hour >= 22 or now().hour < 7 }}'
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ not quiet_hours }}'
+      - condition: trigger
+        id:
+        - one_hour_family
+        - one_hour_google
+        - one_hour_fallback
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Family Calendar Reminder
+          message: '{{ event_title }} starts at {{ event_time }} (in 1 hour).'
+          data:
+            tag: '{{ event_tag }}'
+      - action: notify.mobile_app_hannah_iphone
+        data:
+          title: Family Calendar Reminder
+          message: '{{ event_title }} starts at {{ event_time }} (in 1 hour).'
+          data:
+            tag: '{{ event_tag }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ not quiet_hours }}'
+      - condition: trigger
+        id:
+        - ten_min_family
+        - ten_min_google
+        - ten_min_fallback
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Family Calendar Reminder
+          message: '{{ event_title }} starts at {{ event_time }} (in 10 minutes).'
+          data:
+            tag: '{{ event_tag }}'
+      - action: notify.mobile_app_hannah_iphone
+        data:
+          title: Family Calendar Reminder
+          message: '{{ event_title }} starts at {{ event_time }} (in 10 minutes).'
+          data:
+            tag: '{{ event_tag }}'
+  mode: single
+- id: '1710710999001'
+  alias: Bed Sensor Availability Alert
+  description: Alert when Kenzie or Hannah bed sensor is unavailable for 10+ minutes. Re-alert hourly while unavailable, but only if Tyler is home.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.kenzie_bed_sensor_mat_mat_sensor
+    - binary_sensor.slumber_bed_sensor
+    to: unavailable
+    for:
+      minutes: 10
+    id: SensorUnavailable
+  - trigger: time_pattern
+    minutes: /60
+    id: HourlyCheck
+  conditions:
+  - condition: state
+    entity_id: person.tyler
+    state: home
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.kenzie_bed_sensor_mat_mat_sensor
+      state: unavailable
+    - condition: state
+      entity_id: binary_sensor.slumber_bed_sensor
+      state: unavailable
+  actions:
+  - variables:
+      unavailable_sensors: "{% set sensorlist = [] %}
+{% if is_state('binary_sensor.kenzie_bed_sensor_mat_mat_sensor', 'unavailable') %}
+  {% set _ = sensorlist.append('Kenzie Bed Sensor') %}
+{% endif %}
+{% if is_state('binary_sensor.slumber_bed_sensor', 'unavailable') %}
+  {% set _ = sensorlist.append('Hannah Bedroom Sensor') %}
+{% endif %}
+{{ sensorlist | join(', ') }}
+"
+  - action: notify.mobile_app_tyler_phone
+    data:
+      title: Bed Sensor Unavailable ⚠️
+      message: "{{ unavailable_sensors }} is offline. Please check the sensor connection."
+      data:
+        tag: bed_sensor_unavailable
+        notification_id: bed_sensor_unavailable
   mode: single

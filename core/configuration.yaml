@@ -18,6 +18,48 @@ timer:
   litter_box_timer:
     duration: "08:00:00"
 
+input_number:
+  hvac_power_cooling_w:
+    name: HVAC Power Cooling
+    min: 0
+    max: 10000
+    step: 50
+    mode: box
+    unit_of_measurement: W
+    initial: 3000
+  hvac_power_heating_w:
+    name: HVAC Power Heating
+    min: 0
+    max: 10000
+    step: 50
+    mode: box
+    unit_of_measurement: W
+    initial: 3500
+  hvac_power_fan_w:
+    name: HVAC Power Fan
+    min: 0
+    max: 3000
+    step: 25
+    mode: box
+    unit_of_measurement: W
+    initial: 400
+  hvac_power_idle_w:
+    name: HVAC Power Idle
+    min: 0
+    max: 1000
+    step: 5
+    mode: box
+    unit_of_measurement: W
+    initial: 0
+  electricity_rate_per_kwh:
+    name: Electricity Rate
+    min: 0
+    max: 2
+    step: 0.001
+    mode: box
+    unit_of_measurement: USD/kWh
+    initial: 0.150
+
 tts:
   - platform: google_translate
 
@@ -30,7 +72,7 @@ shopping_list:
 smartir:
 
 homeassistant:
-  external_url: https://REDACTED.example
+  external_url: https://p9iogi43wn9olzkpsloyfi82u6uftbg2.ui.nabu.casa
   allowlist_external_dirs:
     - /config/www/doorbell/
     - /config/
@@ -152,11 +194,283 @@ template:
             0
           {% endif %}
 
+      - name: HVAC Estimated Power
+        unique_id: hvac_estimated_power
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set action = state_attr('climate.home', 'hvac_action') | default('off') %}
+          {% if action == 'cooling' %}
+            {{ states('input_number.hvac_power_cooling_w') | float(0) }}
+          {% elif action == 'heating' %}
+            {{ states('input_number.hvac_power_heating_w') | float(0) }}
+          {% elif action == 'fan' %}
+            {{ states('input_number.hvac_power_fan_w') | float(0) }}
+          {% elif action == 'idle' %}
+            {{ states('input_number.hvac_power_idle_w') | float(0) }}
+          {% else %}
+            {{ states('input_number.hvac_power_idle_w') | float(0) }}
+          {% endif %}
+
+      - name: Office Power Usage
+        unique_id: office_power_usage
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ states('sensor.ups_power') | float(0) }}
+
+      - name: HVAC Energy Cost
+        unique_id: hvac_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.hvac_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Office Energy Cost
+        unique_id: office_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.ups_power_usage_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Total Energy Cost
+        unique_id: total_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set hvac = states('sensor.hvac_energy_cost') | float(0) %}
+          {% set office = states('sensor.office_energy_cost') | float(0) %}
+          {{ (hvac + office) | round(2) }}
+
+      - name: Home Lights Energy Cost
+        unique_id: home_lights_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.all_lights_power_usage_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Fridge Energy Cost
+        unique_id: fridge_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.power_fridge_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Microwave Energy Cost
+        unique_id: microwave_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.microwave_power_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Entertainment Center Energy Cost
+        unique_id: entertainment_center_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.entertainment_center_power_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Washer Dryer Energy Cost
+        unique_id: washer_dryer_energy_cost
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh = states('sensor.washer_dryer_power_energy') | float(0) %}
+          {{ (kwh * rate) | round(2) }}
+
+      - name: Home Lights Energy Cost Monthly
+        unique_id: home_lights_energy_cost_monthly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh_s = states('sensor.home_lights_energy_monthly') %}
+          {% if kwh_s in ['unknown', 'unavailable', 'none'] %}
+            unknown
+          {% else %}
+            {{ ((kwh_s | float(0)) * rate) | round(4) }}
+          {% endif %}
+
+      - name: Fridge Energy Cost Monthly
+        unique_id: fridge_energy_cost_monthly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh_s = states('sensor.fridge_energy_monthly') %}
+          {% if kwh_s in ['unknown', 'unavailable', 'none'] %}
+            unknown
+          {% else %}
+            {{ ((kwh_s | float(0)) * rate) | round(4) }}
+          {% endif %}
+
+      - name: Microwave Energy Cost Monthly
+        unique_id: microwave_energy_cost_monthly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh_s = states('sensor.microwave_energy_monthly') %}
+          {% if kwh_s in ['unknown', 'unavailable', 'none'] %}
+            unknown
+          {% else %}
+            {{ ((kwh_s | float(0)) * rate) | round(4) }}
+          {% endif %}
+
+      - name: Entertainment Center Energy Cost Monthly
+        unique_id: entertainment_center_energy_cost_monthly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh_s = states('sensor.entertainment_center_energy_monthly') %}
+          {% if kwh_s in ['unknown', 'unavailable', 'none'] %}
+            unknown
+          {% else %}
+            {{ ((kwh_s | float(0)) * rate) | round(4) }}
+          {% endif %}
+
+      - name: Washer Dryer Energy Cost Monthly
+        unique_id: washer_dryer_energy_cost_monthly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set kwh_s = states('sensor.washer_dryer_energy_monthly') %}
+          {% if kwh_s in ['unknown', 'unavailable', 'none'] %}
+            unknown
+          {% else %}
+            {{ ((kwh_s | float(0)) * rate) | round(4) }}
+          {% endif %}
+
+      - name: Total Energy Cost Daily
+        unique_id: total_energy_cost_daily
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set hvac = states('sensor.hvac_energy_daily') | float(0) %}
+          {% set office = states('sensor.office_energy_daily') | float(0) %}
+          {{ ((hvac + office) * rate) | round(2) }}
+
+      - name: Total Energy Cost Weekly
+        unique_id: total_energy_cost_weekly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set hvac = states('sensor.hvac_energy_weekly') | float(0) %}
+          {% set office = states('sensor.office_energy_weekly') | float(0) %}
+          {{ ((hvac + office) * rate) | round(2) }}
+
+      - name: Total Energy Cost Monthly
+        unique_id: total_energy_cost_monthly
+        unit_of_measurement: USD
+        device_class: monetary
+        state_class: total
+        state: >
+          {% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+          {% set hvac = states('sensor.hvac_energy_monthly') | float(0) %}
+          {% set office = states('sensor.office_energy_monthly') | float(0) %}
+          {{ ((hvac + office) * rate) | round(2) }}
+
+powercalc:
+  sensors:
+    - entity_id: sensor.hvac_estimated_power
+      power_sensor_id: sensor.hvac_estimated_power
+      create_energy_sensor: true
+      create_utility_meters: true
+      utility_meter_types:
+        - daily
+        - monthly
+    - entity_id: sensor.office_power_usage
+      power_sensor_id: sensor.office_power_usage
+      create_energy_sensor: true
+      create_utility_meters: true
+      ignore_unavailable_state: true
+      unavailable_power: 0
+      utility_meter_types:
+        - daily
+        - monthly
+
+utility_meter:
+  hvac_energy_daily:
+    source: sensor.hvac_energy
+    cycle: daily
+  hvac_energy_weekly:
+    source: sensor.hvac_energy
+    cycle: weekly
+  hvac_energy_monthly:
+    source: sensor.hvac_energy
+    cycle: monthly
+  office_energy_daily:
+    source: sensor.ups_power_usage_energy
+    cycle: daily
+  office_energy_weekly:
+    source: sensor.ups_power_usage_energy
+    cycle: weekly
+  office_energy_monthly:
+    source: sensor.ups_power_usage_energy
+    cycle: monthly
+  home_lights_energy_monthly:
+    source: sensor.all_lights_power_usage_energy
+    cycle: monthly
+  fridge_energy_monthly:
+    source: sensor.power_fridge_energy
+    cycle: monthly
+  microwave_energy_monthly:
+    source: sensor.microwave_power_energy
+    cycle: monthly
+  entertainment_center_energy_monthly:
+    source: sensor.entertainment_center_power_energy
+    cycle: monthly
+  washer_dryer_energy_monthly:
+    source: sensor.washer_dryer_power_energy
+    cycle: monthly
+
 ################
 # SENSORS
 ################
 
 sensor:
+
+  - platform: integration
+    source: sensor.hvac_estimated_power
+    name: HVAC Energy
+    unit_prefix: k
+    round: 4
+    method: left
+    unique_id: hvac_energy
 
   - platform: integration
     source: sensor.ups_power
