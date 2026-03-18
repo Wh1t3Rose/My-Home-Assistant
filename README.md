@@ -1,5 +1,5 @@
 # My-Home-Assistant
-Where I store my Home Asistant configs. Many from my blog site: https://automateit.lol
+Where I store my Home Assistant configs, including many shared on my blog: https://automateit.lol
 
 ## Included
 - core/automations.yaml
