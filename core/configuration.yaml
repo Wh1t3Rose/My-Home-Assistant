@@ -72,7 +72,6 @@ shopping_list:
 smartir:
 
 homeassistant:
-  external_url: https://p9iogi43wn9olzkpsloyfi82u6uftbg2.ui.nabu.casa
   allowlist_external_dirs:
     - /config/www/doorbell/
     - /config/
@@ -534,6 +533,22 @@ sensor:
     max_age:
       days: 30
     sampling_size: 5000
+
+  - platform: statistics
+    name: Marsh Weight Change 14d
+    entity_id: sensor.marsh_weight_3
+    state_characteristic: change
+    max_age:
+      days: 14
+    sampling_size: 3000
+
+  - platform: statistics
+    name: Max Weight Change 14d
+    entity_id: sensor.max_weight_2
+    state_characteristic: change
+    max_age:
+      days: 14
+    sampling_size: 3000
 
   - platform: rest
     name: Glances - SERVER - Uptime

@@ -2375,20 +2375,24 @@ views:
                         custom_fields:
                           body: |
                             [[[
-                              const w = parseFloat(states['sensor.marsh_weight_3']?.state || 0);
-                              const detectedWeight = parseFloat(states['sensor.litter_robot_4_pet_weight']?.state || 0);
-                              const prevAttr = states['sensor.marsh_weight_3']?.attributes?.previous_value ?? states['sensor.marsh_weight_3']?.attributes?.last_value;
-                              const prev = parseFloat(prevAttr);
-                              const hasTrend = !isNaN(prev);
-                              const delta = hasTrend ? (w - prev) : 0;
+                              const marshEntity = states['sensor.marsh_weight_3'];
+                              const w = parseFloat(marshEntity?.state);
+                              const hasWeight = Number.isFinite(w);
+                              const detectedWeight = parseFloat(states['sensor.litter_robot_4_pet_weight']?.state);
+                              const hasDetected = Number.isFinite(detectedWeight);
+                              const trend14d = parseFloat(states['sensor.marsh_weight_change_14d']?.state);
+                              const hasTrend = Number.isFinite(trend14d);
+                              const delta = hasTrend ? trend14d : 0;
                               const trendColor = !hasTrend ? "#777" : (delta > 0 ? "#e53935" : (delta < 0 ? "#43a047" : "#777"));
-                              const trendText = !hasTrend ? "n/a" : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} lbs`;
+                              const trendText = !hasTrend ? "n/a" : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} lbs (14d)`;
 
                               let color = "#43a047";
-                              if (w < 6) color = "#e53935";
-                              else if (w <= 7) color = "#fb8c00";
+                              if (hasWeight && w < 6) color = "#e53935";
+                              else if (hasWeight && w <= 7) color = "#fb8c00";
 
-                              const percent = Math.min(100, (w/12)*100);
+                              const percent = hasWeight ? Math.min(100, (w/12)*100) : 0;
+                              const weightText = hasWeight ? `${w.toFixed(1)} lbs` : "--";
+                              const detectedText = hasDetected ? `${detectedWeight.toFixed(1)} lbs` : "--";
 
                               return `
                               <div style="text-align:center;color:#222;">
@@ -2399,7 +2403,7 @@ views:
                                 <ha-icon icon="mdi:weight-pound" style="width:60px;height:60px;color:#546e7a;"></ha-icon>
 
                                 <div style="font-size:28px;font-weight:700;line-height:1;">
-                                  ${w} lbs
+                                  ${weightText}
                                 </div>
 
                                 <div style="font-size:12px;margin-top:2px;color:${trendColor}">
@@ -2411,7 +2415,7 @@ views:
                                 </div>
 
                                 <div style="font-size:12px;margin-top:6px;color:#555;line-height:1;">
-                                  Last detect: ${detectedWeight || 0} lbs
+                                  Last detect: ${detectedText}
                                 </div>
                               </div>
                               `
@@ -2430,19 +2434,23 @@ views:
                         custom_fields:
                           body: |
                             [[[
-                              const w = parseFloat(states['sensor.max_weight_2']?.state || 0);
-                              const detectedWeight = parseFloat(states['sensor.litter_robot_4_pet_weight']?.state || 0);
-                              const prevAttr = states['sensor.max_weight_2']?.attributes?.previous_value ?? states['sensor.max_weight_2']?.attributes?.last_value;
-                              const prev = parseFloat(prevAttr);
-                              const hasTrend = !isNaN(prev);
-                              const delta = hasTrend ? (w - prev) : 0;
+                              const maxEntity = states['sensor.max_weight_2'];
+                              const w = parseFloat(maxEntity?.state);
+                              const hasWeight = Number.isFinite(w);
+                              const detectedWeight = parseFloat(states['sensor.litter_robot_4_pet_weight']?.state);
+                              const hasDetected = Number.isFinite(detectedWeight);
+                              const trend14d = parseFloat(states['sensor.max_weight_change_14d']?.state);
+                              const hasTrend = Number.isFinite(trend14d);
+                              const delta = hasTrend ? trend14d : 0;
                               const trendColor = !hasTrend ? "#777" : (delta > 0 ? "#e53935" : (delta < 0 ? "#43a047" : "#777"));
-                              const trendText = !hasTrend ? "n/a" : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} lbs`;
+                              const trendText = !hasTrend ? "n/a" : `${delta > 0 ? '+' : ''}${delta.toFixed(1)} lbs (14d)`;
 
                               let color = "#43a047";
-                              if (w > 15) color = "#e53935";
+                              if (hasWeight && w > 15) color = "#e53935";
 
-                              const percent = Math.min(100, (w/18)*100);
+                              const percent = hasWeight ? Math.min(100, (w/18)*100) : 0;
+                              const weightText = hasWeight ? `${w.toFixed(1)} lbs` : "--";
+                              const detectedText = hasDetected ? `${detectedWeight.toFixed(1)} lbs` : "--";
 
                               return `
                               <div style="text-align:center;color:#222;">
@@ -2453,7 +2461,7 @@ views:
                                 <ha-icon icon="mdi:weight-pound" style="width:60px;height:60px;color:#546e7a;"></ha-icon>
 
                                 <div style="font-size:28px;font-weight:700;line-height:1;">
-                                  ${w} lbs
+                                  ${weightText}
                                 </div>
 
                                 <div style="font-size:12px;margin-top:2px;color:${trendColor}">
@@ -2465,7 +2473,7 @@ views:
                                 </div>
 
                                 <div style="font-size:12px;margin-top:6px;color:#555;line-height:1;">
-                                  Last detect: ${detectedWeight || 0} lbs
+                                  Last detect: ${detectedText}
                                 </div>
                               </div>
                               `
@@ -2496,14 +2504,7 @@ views:
                           const litterState = litterStateRaw === 'docked' ? 'ready' : litterStateRaw;
                           const stateColor = litterState === 'ready' ? "#43a047" : (litterState === 'cleaning' ? "#fb8c00" : "#546e7a");
                           const lastSeenRaw = states['sensor.litter_robot_4_last_seen']?.state;
-                          let lastSeenText = 'unknown';
-                          if (lastSeenRaw && lastSeenRaw !== 'unknown' && lastSeenRaw !== 'unavailable') {
-                            const seenDate = new Date(lastSeenRaw);
-                            if (!isNaN(seenDate.getTime())) {
-                              const mins = Math.max(0, Math.round((Date.now() - seenDate.getTime()) / 60000));
-                              lastSeenText = `${mins} min ago`;
-                            }
-                          }
+                          const lastSeenText = online ? 'Now' : ((!lastSeenRaw || lastSeenRaw === 'unknown') ? 'unknown' : lastSeenRaw);
 
                           let litterColor = "#43a047";
                           if (litter < 30) litterColor = "#e53935";
@@ -2549,7 +2550,7 @@ views:
                             </div>
 
                             <div style="font-size:12px;color:#555;margin-top:2px">
-                              Last seen: ${lastSeenText}
+                              Last Online: ${lastSeenText}
                             </div>
 
                           </div>

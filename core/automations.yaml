@@ -1,102 +1,33 @@
 ﻿- id: '1676349729864'
-  alias: Cat Feeder Schedule (10g/serv | 360g/day)
-  description: Dispenses IAMS Proactive Health Hairball Control Salmon dry food.
-    6 servings per feed, 6 feeds/day (36 servings total ~= 360g/day).
+  alias: Cat Feeder Schedule (shared/even split)
+  description: Dispenses IAMS Proactive Health Hairball Control Indoor Salmon dry
+    food with one shared feeding amount per cycle (evenly split by feeder). Using
+    measured output (~7g per bowl at 6 presses), this uses 12 presses/feed across
+    6 feedings/day (~14g per bowl/feed, ~84g per bowl/day, ~168g total/day).
   triggers:
-  - at: 06:00:00
-    id: 6AM
+  - at: 02:00:00
     trigger: time
   - at: 09:00:00
-    id: 9AM
     trigger: time
   - at: '12:00:00'
-    id: 12PM
     trigger: time
   - at: '15:00:00'
-    id: 3PM
     trigger: time
   - at: '18:00:00'
-    id: 6PM
     trigger: time
-  - at: '23:00:00'
-    id: 11PM
+  - at: '21:00:00'
     trigger: time
   conditions: []
   actions:
-  - alias: Dispense Food
-    choose:
-    - conditions:
-      - condition: trigger
-        id: 6AM
+  - alias: Feed Both Cats (even split)
+    repeat:
+      count: 12
       sequence:
-      - repeat:
-          count: 6
-          sequence:
-          - target:
-              entity_id: button.granary_smart_feeder_manual_feed
-            action: button.press
-          - delay:
-              seconds: 2
-    - conditions:
-      - condition: trigger
-        id: 9AM
-      sequence:
-      - repeat:
-          count: 6
-          sequence:
-          - target:
-              entity_id: button.granary_smart_feeder_manual_feed
-            action: button.press
-          - delay:
-              seconds: 2
-    - conditions:
-      - condition: trigger
-        id: 12PM
-      sequence:
-      - repeat:
-          count: 6
-          sequence:
-          - target:
-              entity_id: button.granary_smart_feeder_manual_feed
-            action: button.press
-          - delay:
-              seconds: 2
-    - conditions:
-      - condition: trigger
-        id: 3PM
-      sequence:
-      - repeat:
-          count: 6
-          sequence:
-          - target:
-              entity_id: button.granary_smart_feeder_manual_feed
-            action: button.press
-          - delay:
-              seconds: 2
-    - conditions:
-      - condition: trigger
-        id: 6PM
-      sequence:
-      - repeat:
-          count: 6
-          sequence:
-          - target:
-              entity_id: button.granary_smart_feeder_manual_feed
-            action: button.press
-          - delay:
-              seconds: 2
-    - conditions:
-      - condition: trigger
-        id: 11PM
-      sequence:
-      - repeat:
-          count: 6
-          sequence:
-          - target:
-              entity_id: button.granary_smart_feeder_manual_feed
-            action: button.press
-          - delay:
-              seconds: 2
+      - target:
+          entity_id: button.granary_smart_feeder_manual_feed
+        action: button.press
+      - delay:
+          seconds: 2
   mode: single
 - id: '1773373200000'
   alias: Kenzie Bed Sensor Sunday Night - Turn Off Hannah Reading Light
@@ -920,12 +851,24 @@
   - variables:
       digest_text: '{{ state_attr(''persistent_notification.overnight_notification_digest'',
         ''message'') | default(''No deferred notifications.'', true) }}'
+      feeder_recovery_log: '{{ state_attr(''persistent_notification.feeder_recovery_log'',
+        ''message'') | default(''No feeder recoveries logged.'', true) }}'
+      vacuum_error_log: '{{ state_attr(''persistent_notification.vacuum_error_log'',
+        ''message'') | default(''No vacuum errors logged.'', true) }}'
+      energy_spike_log: '{{ state_attr(''persistent_notification.energy_spike_log'',
+        ''message'') | default(''No energy spikes logged.'', true) }}'
       sleep_duration: '{{ states(''sensor.tyler_phone_sleep_duration_4'') | default(''unknown'',
         true) }}'
       sleep_seconds: "{% set s = states('sensor.tyler_phone_sleep_duration_4') | default('', true) | trim %} {% if ':' in s %}\n  {% set p = s.split(':') %}\n  {% if p | length == 3 %}\n    {{ (p[0] | int(0)) * 3600 + (p[1] | int(0)) * 60 + (p[2] | int(0)) }}\n  {% elif p | length == 2 %}\n    {{ (p[0] | int(0)) * 60 + (p[1] | int(0)) }}\n  {% else %}\n    0\n  {% endif %}\n{% else %}\n  {{ (s | float(0)) * 3600 }}\n{% endif %}"
       summary_message: 'Sleep duration: {{ sleep_duration }}
 
-        Overnight digest: {{ digest_text }}'
+        Overnight digest: {{ digest_text }}
+
+        Feeder recoveries: {{ feeder_recovery_log }}
+
+        Vacuum errors: {{ vacuum_error_log }}
+
+        Energy spikes: {{ energy_spike_log }}'
   - choose:
     - conditions:
       - condition: trigger
@@ -969,6 +912,15 @@
       - action: persistent_notification.dismiss
         data:
           notification_id: overnight_notification_digest
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: feeder_recovery_log
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: vacuum_error_log
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: energy_spike_log
     - conditions:
       - condition: trigger
         id:
@@ -1009,6 +961,15 @@
       - action: persistent_notification.dismiss
         data:
           notification_id: overnight_notification_digest
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: feeder_recovery_log
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: vacuum_error_log
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: energy_spike_log
   mode: single
 - id: '1697303531541'
   alias: Washer Started - Live Notifications
@@ -4352,29 +4313,108 @@
           entity_id: light.group_kitchen_lights
   mode: single
 - id: '1728524055808'
-  alias: Notify if Cat Feeder Schedule Missed
-  description: Notify if the Cat Feeder Schedule has not run in 8 hours
+  alias: Cat Feeder Missed-Run Auto-Recovery
+  description: If a scheduled feeding appears missed, auto-dispense one full cycle
+    and notify as a fallback for Wi-Fi hiccups.
   triggers:
-  - hours: /1
-    trigger: time_pattern
+  - at: 02:30:00
+    trigger: time
+  - at: 09:30:00
+    trigger: time
+  - at: '12:30:00'
+    trigger: time
+  - at: '15:30:00'
+    trigger: time
+  - at: '18:30:00'
+    trigger: time
+  - at: '21:30:00'
+    trigger: time
   conditions:
   - condition: template
-    value_template: "{% set last_feed = states('sensor.granary_smart_feeder_last_feed_time')
-      %} {% if last_feed == 'unknown' or last_feed == None %}\n  true\n{% else %}\n
-      \ {{ (now() - as_datetime(last_feed)) > timedelta(hours=8) }}\n{% endif %}\n"
+    value_template: "{% set last_feed = states('sensor.granary_smart_feeder_last_feed_time') %}
+      {% if last_feed in ['unknown', 'unavailable', 'none', None] %}
+        false
+      {% else %}
+        {{ (now() - as_datetime(last_feed)) > timedelta(minutes=90) }}
+      {% endif %}"
+  - condition: template
+    value_template: "{% set b = states.button.granary_smart_feeder_manual_feed %}
+      {% if b is none %}
+        true
+      {% else %}
+        {{ (now() - b.last_changed) > timedelta(minutes=30) }}
+      {% endif %}"
   actions:
-  - data:
-      title: Cat Feeder Schedule hasn't run in 8 hours!
-      message: Do you want to dispense food?
+  - variables:
+      expected_runs_today: "{% set h = now().hour %}
+        {% if h >= 21 %} 6
+        {% elif h >= 18 %} 5
+        {% elif h >= 15 %} 4
+        {% elif h >= 12 %} 3
+        {% elif h >= 9 %} 2
+        {% elif h >= 2 %} 1
+        {% else %} 0
+        {% endif %}"
+      actual_runs_today: '{{ states(''sensor.granary_smart_feeder_today_s_feeding_times'') | int(0) }}'
+      missed_runs_today: '{{ [ (expected_runs_today | int(0)) - (actual_runs_today | int(0)), 0 ] | max }}'
+  - alias: Auto-recovery feeding cycle
+    repeat:
+      count: 12
+      sequence:
+      - action: button.press
+        target:
+          entity_id: button.granary_smart_feeder_manual_feed
+      - delay:
+          seconds: 2
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ missed_runs_today | int(0) >= 2 }}'
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Cat Feeder Escalation - Multiple Missed Runs
+          message: 'Detected {{ missed_runs_today }} missed runs today. Recovery cycle (12 presses) was executed.'
+          data:
+            tag: cat_food_missed
+            priority: high
+            ttl: 0
+      - action: notify.mobile_app_hannah_iphone
+        data:
+          title: Cat Feeder Escalation - Multiple Missed Runs
+          message: 'Detected {{ missed_runs_today }} missed runs today. Recovery cycle (12 presses) was executed.'
+          data:
+            tag: cat_food_missed
+      - action: notify.mobile_app_pixel_tablet
+        data:
+          title: Cat Feeder Escalation - Multiple Missed Runs
+          message: 'Detected {{ missed_runs_today }} missed runs today. Recovery cycle (12 presses) was executed.'
+          data:
+            tag: cat_food_missed
+      - action: notify.alexa_media_tyler_s_echo_plus
+        data:
+          title: Cat Feeder Alert
+          message: Multiple feeder runs were missed. Recovery cycle executed.
+    default:
+    - action: notify.mobile_app_tyler_phone
       data:
-        tag: cat_food_missed
-    action: notify.mobile_app_tyler_phone
-  - data:
-      title: Cat Feeder Schedule hasn't run in 8 hours!
-      message: Do you want to dispense food?
+        title: Cat feeder auto-recovery ran
+        message: Missed scheduled feed detected. Dispensed one full recovery cycle (12 presses).
+        data:
+          tag: cat_food_missed
+    - action: notify.mobile_app_hannah_iphone
       data:
-        tag: cat_food_missed
-    action: notify.mobile_app_hannah_iphone
+        title: Cat feeder auto-recovery ran
+        message: Missed scheduled feed detected. Dispensed one full recovery cycle (12 presses).
+        data:
+          tag: cat_food_missed
+  - action: persistent_notification.create
+    data:
+      title: Feeder Recovery Log
+      notification_id: feeder_recovery_log
+      message: "{% set prev = state_attr('persistent_notification.feeder_recovery_log', 'message') | default('', true) %}
+        {% set line = now().strftime('%Y-%m-%d %H:%M') ~ ' - recovery run (missed=' ~ (missed_runs_today | string) ~ ')' %}
+        {% if prev | trim != '' %}{{ prev }}\n{{ line }}{% else %}{{ line }}{% endif %}"
   mode: single
 - id: '1728780308140'
   alias: Notification - Oven Preheated
@@ -10141,6 +10181,30 @@
         data:
           title: Vacuum Error
           message: 'Error in room: {{ current_room }} – {{ vacuum_error }}'
+      - action: persistent_notification.create
+        data:
+          title: Vacuum Error Log
+          notification_id: vacuum_error_log
+          message: "{% set prev = state_attr('persistent_notification.vacuum_error_log', 'message') | default('', true) %}
+            {% set line = now().strftime('%Y-%m-%d %H:%M') ~ ' - ' ~ current_room ~ ': ' ~ vacuum_error %}
+            {% if prev | trim != '' %}{{ prev }}\n{{ line }}{% else %}{{ line }}{% endif %}"
+      - delay:
+          minutes: 10
+      - if:
+        - condition: template
+          value_template: '{{ states(''sensor.l40s_ultra_ae_state'') == ''Error'' }}'
+        then:
+        - action: vacuum.start
+          target:
+            entity_id: vacuum.l40s_ultra_ae
+        - action: notify.mobile_app_tyler_phone
+          data:
+            title: Vacuum Retry Started
+            message: 'Vacuum was still in Error after 10 minutes. Sent auto-retry start command.'
+        - action: notify.mobile_app_pixel_tablet
+          data:
+            title: Vacuum Retry Started
+            message: 'Vacuum was still in Error after 10 minutes. Sent auto-retry start command.'
   - choose:
     - conditions:
       - condition: template
@@ -10676,4 +10740,223 @@
       data:
         tag: bed_sensor_unavailable
         notification_id: bed_sensor_unavailable
+  mode: single
+- id: '1773531000001'
+  alias: Energy Cost Spike Alert
+  description: Alert when estimated hourly energy cost significantly exceeds today's baseline trend.
+  triggers:
+  - trigger: time_pattern
+    minutes: /15
+  conditions:
+  - condition: template
+    value_template: "{% set rate = states('input_number.electricity_rate_per_kwh') | float(0) %}
+      {% set hvac_w = states('sensor.hvac_estimated_power') | float(0) %}
+      {% set office_w = states('sensor.ups_power') | float(0) %}
+      {% set est_hourly = ((hvac_w + office_w) / 1000) * rate %}
+      {% set elapsed_hours = ((now().hour * 60 + now().minute) / 60) %}
+      {% set elapsed_hours = elapsed_hours if elapsed_hours > 0 else 0.25 %}
+      {% set daily_cost = states('sensor.total_energy_cost_daily') | float(0) %}
+      {% set avg_hourly = daily_cost / elapsed_hours %}
+      {{ est_hourly > 0.75 and est_hourly > (avg_hourly * 1.8) }}"
+  - condition: template
+    value_template: "{% set last = state_attr('automation.energy_cost_spike_alert', 'last_triggered') %}
+      {{ last in [none, 'unknown', 'unavailable'] or (now() - as_datetime(last)) > timedelta(minutes=90) }}"
+  actions:
+  - variables:
+      rate: '{{ states(''input_number.electricity_rate_per_kwh'') | float(0) }}'
+      hvac_w: '{{ states(''sensor.hvac_estimated_power'') | float(0) }}'
+      office_w: '{{ states(''sensor.ups_power'') | float(0) }}'
+      est_hourly: '{{ (((hvac_w | float(0)) + (office_w | float(0))) / 1000 * (rate | float(0))) | round(2) }}'
+      elapsed_hours: '{% set h = ((now().hour * 60 + now().minute) / 60) %} {{ h if h > 0 else 0.25 }}'
+      daily_cost: '{{ states(''sensor.total_energy_cost_daily'') | float(0) }}'
+      avg_hourly: '{{ ((daily_cost | float(0)) / (elapsed_hours | float(0))) | round(2) }}'
+      contributor: "{% if hvac_w | float(0) > (office_w | float(0) * 1.3) %}
+        HVAC dominant
+        {% elif office_w | float(0) > (hvac_w | float(0) * 1.3) %}
+        Office/UPS dominant
+        {% else %}
+        Mixed load
+        {% endif %}"
+  - action: notify.mobile_app_tyler_phone
+    data:
+      title: Energy Cost Spike
+      message: 'Estimated ${{ est_hourly }}/hr vs avg ${{ avg_hourly }}/hr. {{ contributor | trim }}. HVAC {{ hvac_w | round(0) }}W, Office {{ office_w | round(0) }}W.'
+      data:
+        tag: energy_cost_spike
+        alert_once: true
+  - action: persistent_notification.create
+    data:
+      title: Energy Spike Log
+      notification_id: energy_spike_log
+      message: "{% set prev = state_attr('persistent_notification.energy_spike_log', 'message') | default('', true) %}
+        {% set line = now().strftime('%Y-%m-%d %H:%M') ~ ' - $' ~ (est_hourly | string) ~ '/hr (' ~ (contributor | trim) ~ ')' %}
+        {% if prev | trim != '' %}{{ prev }}\n{{ line }}{% else %}{{ line }}{% endif %}"
+  mode: single
+- id: '1773531000002'
+  alias: Bedtime House Guard Summary
+  description: When both bed sensors are on, send an all-clear or action-needed summary for front door and range states.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.slumber_bed_sensor
+    - binary_sensor.kenzie_bed_sensor_mat_mat_sensor
+    to: 'on'
+    for:
+      minutes: 2
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.slumber_bed_sensor
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.kenzie_bed_sensor_mat_mat_sensor
+    state: 'on'
+  actions:
+  - variables:
+      front_door_open: '{{ is_state(''binary_sensor.front_door_sensor_opening'', ''on'') }}'
+      stove_state: '{{ states(''sensor.range_operating_state'') | lower }}'
+      oven_state: '{{ states(''sensor.range_oven_job_state'') | lower }}'
+      stove_active: '{{ stove_state not in [''off'', ''idle'', ''ready'', ''unknown'', ''unavailable'', ''none'', ''''] }}'
+      oven_active: '{{ oven_state in [''preheat'', ''preheating'', ''cooking'', ''running''] }}'
+      issues: "{% set ns = namespace(items=[]) %}
+        {% if front_door_open %}{% set ns.items = ns.items + ['Front door is open'] %}{% endif %}
+        {% if stove_active %}{% set ns.items = ns.items + ['Stove state: ' ~ states('sensor.range_operating_state')] %}{% endif %}
+        {% if oven_active %}{% set ns.items = ns.items + ['Oven state: ' ~ states('sensor.range_oven_job_state')] %}{% endif %}
+        {{ ns.items | join(' | ') }}"
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ issues | trim != '''' }}'
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Bedtime House Guard - Action Needed
+          message: '{{ issues }}'
+          data:
+            tag: bedtime_house_guard
+            actions:
+            - action: BEDTIME_GUARD_ACK
+              title: Acknowledge
+            - action: BEDTIME_GUARD_SNOOZE_15
+              title: Snooze 15m
+      - action: notify.mobile_app_hannah_iphone
+        data:
+          title: Bedtime House Guard - Action Needed
+          message: '{{ issues }}'
+          data:
+            tag: bedtime_house_guard
+            actions:
+            - action: BEDTIME_GUARD_ACK
+              title: Acknowledge
+            - action: BEDTIME_GUARD_SNOOZE_15
+              title: Snooze 15m
+      - wait_for_trigger:
+        - trigger: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: BEDTIME_GUARD_ACK
+        - trigger: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: BEDTIME_GUARD_SNOOZE_15
+        timeout:
+          minutes: 10
+        continue_on_timeout: true
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ wait.trigger is none }}'
+          - condition: template
+            value_template: "{{ is_state('binary_sensor.front_door_sensor_opening', 'on')
+              or (states('sensor.range_operating_state') | lower not in ['off','idle','ready','unknown','unavailable','none',''])
+              or (states('sensor.range_oven_job_state') | lower in ['preheat','preheating','cooking','running']) }}"
+          sequence:
+          - action: notify.mobile_app_tyler_phone
+            data:
+              title: Bedtime Guard Follow-up
+              message: 'Still needs attention: front door/range status unchanged after 10 minutes.'
+              data:
+                tag: bedtime_house_guard
+          - action: notify.mobile_app_hannah_iphone
+            data:
+              title: Bedtime Guard Follow-up
+              message: 'Still needs attention: front door/range status unchanged after 10 minutes.'
+              data:
+                tag: bedtime_house_guard
+        - conditions:
+          - condition: template
+            value_template: '{{ wait.trigger is not none and wait.trigger.event.data.action == ''BEDTIME_GUARD_SNOOZE_15'' }}'
+          sequence:
+          - delay:
+              minutes: 15
+          - if:
+            - condition: template
+              value_template: "{{ is_state('binary_sensor.front_door_sensor_opening', 'on')
+                or (states('sensor.range_operating_state') | lower not in ['off','idle','ready','unknown','unavailable','none',''])
+                or (states('sensor.range_oven_job_state') | lower in ['preheat','preheating','cooking','running']) }}"
+            then:
+            - action: notify.mobile_app_tyler_phone
+              data:
+                title: Bedtime Guard Snooze Ended
+                message: 'Snooze ended and there are still open bedtime issues.'
+                data:
+                  tag: bedtime_house_guard
+            - action: notify.mobile_app_hannah_iphone
+              data:
+                title: Bedtime Guard Snooze Ended
+                message: 'Snooze ended and there are still open bedtime issues.'
+                data:
+                  tag: bedtime_house_guard
+    default:
+    - action: notify.mobile_app_tyler_phone
+      data:
+        title: Bedtime House Guard - All Clear
+        message: Front door closed and range appears inactive.
+        data:
+          tag: bedtime_house_guard
+    - action: notify.mobile_app_hannah_iphone
+      data:
+        title: Bedtime House Guard - All Clear
+        message: Front door closed and range appears inactive.
+        data:
+          tag: bedtime_house_guard
+  mode: single
+- id: '1773531000003'
+  alias: Home Health Heartbeat
+  description: Every 6 hours, send a quiet healthy check; alert with stale entities if key sensors have not updated.
+  triggers:
+  - trigger: time_pattern
+    hours: /6
+    minutes: '5'
+  conditions: []
+  actions:
+  - variables:
+      ups_age_h: "{% set s = states.sensor.ups_power %} {% if s is not none %} {{ ((as_timestamp(now()) - as_timestamp(s.last_updated)) / 3600) | round(2) }} {% else %} 999 {% endif %}"
+      feeder_age_h: "{% set s = states.sensor.granary_smart_feeder_last_feed_time %} {% if s is not none %} {{ ((as_timestamp(now()) - as_timestamp(s.last_updated)) / 3600) | round(2) }} {% else %} 999 {% endif %}"
+      washer_age_h: "{% set s = states.sensor.washer_dryer_run_state %} {% if s is not none %} {{ ((as_timestamp(now()) - as_timestamp(s.last_updated)) / 3600) | round(2) }} {% else %} 999 {% endif %}"
+      vacuum_age_h: "{% set s = states.sensor.l40s_ultra_ae_state %} {% if s is not none %} {{ ((as_timestamp(now()) - as_timestamp(s.last_updated)) / 3600) | round(2) }} {% else %} 999 {% endif %}"
+      stale: "{% set ns = namespace(items=[]) %}
+        {% if ups_age_h | float(999) > 12 %}{% set ns.items = ns.items + ['UPS sensor stale (' ~ ups_age_h ~ 'h)'] %}{% endif %}
+        {% if feeder_age_h | float(999) > 12 %}{% set ns.items = ns.items + ['Feeder sensor stale (' ~ feeder_age_h ~ 'h)'] %}{% endif %}
+        {% if washer_age_h | float(999) > 24 %}{% set ns.items = ns.items + ['Washer state stale (' ~ washer_age_h ~ 'h)'] %}{% endif %}
+        {% if vacuum_age_h | float(999) > 12 %}{% set ns.items = ns.items + ['Vacuum state stale (' ~ vacuum_age_h ~ 'h)'] %}{% endif %}
+        {{ ns.items | join(' | ') }}"
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ stale | trim != '''' }}'
+      sequence:
+      - action: notify.mobile_app_tyler_phone
+        data:
+          title: Home Health Alert
+          message: '{{ stale }}'
+          data:
+            tag: home_health_heartbeat
+    default:
+    - action: notify.mobile_app_tyler_phone
+      data:
+        title: Home Health Heartbeat OK
+        message: 'Core sensors are updating normally.'
+        data:
+          tag: home_health_heartbeat
+          alert_once: true
   mode: single
